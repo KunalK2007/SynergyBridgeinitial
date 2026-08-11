@@ -1,0 +1,261 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
+
+    function isProblemPoster(resourceData) {
+      return isAuthenticated() && resourceData.posterId == request.auth.uid;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      // Only allow updates to specific non-critical fields
+      allow update: if isOwner(userId) 
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'accountStatus', 'institutionId']);
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Profile Collections (Student, Mentor, Industry, etc.)
+    match /studentProfiles/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    match /mentorProfiles/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    match /industryProfiles/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    match /governmentProfiles/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    match /facultyProfiles/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Problems Collection
+    match /problems/{problemId} {
+      allow read: if resource.data.status == 'PUBLISHED' 
+                  || isProblemPoster(resource.data)
+                  || isAdmin();
+                  
+      allow create: if isAuthenticated() 
+                    && request.resource.data.posterId == request.auth.uid
+                    && request.resource.data.verificationStatus in ['UNVERIFIED', 'PENDING_REVIEW']
+                    && !('moderatedBy' in request.resource.data)
+                    && !('moderatedAt' in request.resource.data)
+                    && !('moderationReason' in request.resource.data);
+                    
+      allow update: if (isProblemPoster(resource.data) 
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['verificationStatus', 'moderatedBy', 'moderatedAt', 'moderationReason']))
+                    || isAdmin();
+    }
+
+    // Applications Collection
+    match /applications/{appId} {
+      // Students can read their own applications. Problem posters can read applications for their problems. Admins can read all.
+      allow read: if isOwner(resource.data.applicantId) 
+                  || (isAuthenticated() && get(/databases/$(database)/documents/problems/$(resource.data.problemId)).data.posterId == request.auth.uid)
+                  || isAdmin();
+      
+      // Students can create applications
+      allow create: if isOwner(request.resource.data.applicantId)
+                    && request.resource.data.status == 'SUBMITTED';
+                    
+      // Students can withdraw. Reviewers can update status.
+      allow update: if (isOwner(resource.data.applicantId) && request.resource.data.status == 'WITHDRAWN' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']))
+                    || ((isAuthenticated() && get(/databases/$(database)/documents/problems/$(resource.data.problemId)).data.posterId == request.auth.uid) 
+                        && request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'reviewedAt', 'reviewedBy', 'rejectionReason', 'updatedAt']))
+                    || isAdmin();
+    }
+
+    // Teams Collection
+    match /teams/{teamId} {
+      // Team members, invitees (via invitations?), problem posters of applied problems can read.
+      // For MVP, allow authenticated read, but ideally restrict. 
+      allow read: if isAuthenticated();
+      
+      allow create: if isOwner(request.resource.data.leaderId);
+      
+      // Only leader can update
+      allow update: if isOwner(resource.data.leaderId) || isAdmin();
+    }
+
+    // Team Invitations
+    match /teamInvitations/{invId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.inviterId || request.auth.uid == resource.data.inviteeId);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.inviterId;
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.inviteeId || request.auth.uid == resource.data.inviterId);
+    }
+
+    // Projects
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      // Projects are created by the system/reviewers. Updates for assigning mentors, etc.
+      allow create: if isAdmin() || (isAuthenticated() && get(/databases/$(database)/documents/problems/$(request.resource.data.problemId)).data.posterId == request.auth.uid);
+      allow update: if isAdmin() 
+                    || (isAuthenticated() && get(/databases/$(database)/documents/problems/$(resource.data.problemId)).data.posterId == request.auth.uid)
+                    || (isAuthenticated() && resource.data.mentorId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'progress', 'healthStatus', 'updatedAt']))
+                    || (isAuthenticated() && request.auth.uid in resource.data.studentIds && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['progress', 'updatedAt']));
+    }
+
+    // Phase 3C: Collaborative Workspace
+
+    // Helper: is project participant
+    function isProjectParticipant(projectId) {
+      let proj = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return isAuthenticated() && (
+        request.auth.uid in proj.studentIds ||
+        request.auth.uid == proj.mentorId ||
+        request.auth.uid == proj.coordinatorId ||
+        isAdmin() ||
+        get(/databases/$(database)/documents/problems/$(proj.problemId)).data.posterId == request.auth.uid
+      );
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isProjectParticipant(resource.data.projectId);
+      allow create: if isProjectParticipant(request.resource.data.projectId);
+      allow update, delete: if isProjectParticipant(resource.data.projectId);
+    }
+
+    match /milestones/{milestoneId} {
+      allow read: if isProjectParticipant(resource.data.projectId);
+      allow create: if isProjectParticipant(request.resource.data.projectId);
+      allow update, delete: if isProjectParticipant(resource.data.projectId);
+    }
+
+    match /projectMessages/{messageId} {
+      allow read: if isProjectParticipant(resource.data.projectId);
+      allow create: if isProjectParticipant(request.resource.data.projectId) && request.auth.uid == request.resource.data.senderId;
+      allow update, delete: if isProjectParticipant(resource.data.projectId) && request.auth.uid == resource.data.senderId;
+    }
+
+    match /projectFiles/{fileId} {
+      allow read: if isProjectParticipant(resource.data.projectId);
+      allow create: if isProjectParticipant(request.resource.data.projectId) && request.auth.uid == request.resource.data.uploadedBy;
+      allow delete: if isProjectParticipant(resource.data.projectId) && request.auth.uid == request.resource.data.uploadedBy;
+    }
+
+    match /projectActivities/{activityId} {
+      allow read: if isProjectParticipant(resource.data.projectId);
+      allow create: if isProjectParticipant(request.resource.data.projectId);
+    }
+
+    match /mentorFeedback/{feedbackId} {
+      allow read: if isProjectParticipant(resource.data.projectId);
+      allow create, update, delete: if isAuthenticated() && (request.auth.uid == resource.data.mentorId || request.auth.uid == request.resource.data.mentorId) && isProjectParticipant(request.resource.data.projectId);
+    }
+
+    // Phase 3D: AI Mentor Conversations
+    match /mentorConversations/{conversationId} {
+      allow read: if (isProjectParticipant(resource.data.projectId) && resource.data.studentId == request.auth.uid) || isAdmin();
+      allow create: if isProjectParticipant(request.resource.data.projectId) && request.resource.data.studentId == request.auth.uid;
+      allow update: if isProjectParticipant(resource.data.projectId) && resource.data.studentId == request.auth.uid;
+      
+      match /messages/{messageId} {
+        allow read: if (isProjectParticipant(resource.data.projectId) && get(/databases/$(database)/documents/mentorConversations/$(conversationId)).data.studentId == request.auth.uid) || isAdmin();
+        allow create: if isProjectParticipant(resource.data.projectId) && request.resource.data.studentId == request.auth.uid && request.resource.data.role == "STUDENT";
+      }
+    }
+
+    // AI Recommendations (Server written)
+    match /aiRecommendations/{recId} {
+      allow read: if request.auth != null && resource.data.studentId == request.auth.uid;
+      allow write: if false; // Server only
+    }
+
+    // AI Usage (Server written)
+    match /aiUsage/{usageId} {
+      allow read: if isAdmin();
+      allow write: if false; // Server only
+    }
+
+    // Mentors Collection
+    match /mentors/{mentorId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(mentorId) || isAdmin();
+    }
+
+    // Phase 3E: Gamification
+    match /gamificationProfiles/{userId} {
+      allow read: if isOwner(userId) || (isAuthenticated() && resource.data.showOnLeaderboard == true);
+      allow update: if isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['showOnLeaderboard']);
+      allow create: if false; // Server only
+    }
+
+    match /gamificationEvents/{eventId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Server only
+    }
+
+    match /users/{userId}/achievements/{achievementId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || get(/databases/$(database)/documents/gamificationProfiles/$(userId)).data.showOnLeaderboard == true);
+      allow write: if false; // Server only
+    }
+
+    // Phase 3F: Credentials & Funding
+    match /certificates/{certId} {
+      allow read: if isAuthenticated() && (resource.data.studentId == request.auth.uid || isProjectParticipant(resource.data.projectId));
+      allow write: if false; // Server only
+    }
+
+    match /originalityReports/{reportId} {
+      allow read: if isAuthenticated() && isProjectParticipant(resource.data.projectId);
+      allow write: if false; // Server only
+    }
+
+    match /fundingGrants/{grantId} {
+      allow read: if isAuthenticated() && isProjectParticipant(resource.data.projectId);
+      allow write: if false; // Server only
+    }
+
+    // Notifications
+    match /notifications/{notifId} {
+      allow read: if isOwner(resource.data.userId);
+      allow update: if isOwner(resource.data.userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create: if isAuthenticated(); // Anyone can trigger a notification (e.g. inviting a team member)
+    }
+
+    // Phase 4A: Analytics Snapshots
+    match /analyticsSnapshots/{snapshotId} {
+      // Allowed for FACULTY, COORDINATOR, ADMIN. For MVP, restricting write to false.
+      allow read: if isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['FACULTY', 'COORDINATOR', 'ADMIN'];
+      allow write: if false; // Server only
+    }
+
+    // Phase 4B: Institutional AI Insights
+    match /institutionalAIConversations/{conversationId} {
+      allow read: if isAuthenticated() && resource.data.ownerId == request.auth.uid && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.institutionId == resource.data.institutionId;
+      allow write: if false; // Server only
+      
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && get(/databases/$(database)/documents/institutionalAIConversations/$(conversationId)).data.ownerId == request.auth.uid;
+        allow write: if false; // Server only
+      }
+    }
+
+    match /aiUsageRecords/{recordId} {
+      allow read: if isAdmin();
+      allow write: if false; // Server only
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

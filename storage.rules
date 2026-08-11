@@ -1,0 +1,30 @@
+rules_version = '2';
+
+// Craft rules based on https://firebase.google.com/docs/storage/security
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Project Files
+    match /projects/{projectId}/{fileName} {
+      allow read: if request.auth != null; // Typically we'd check if user is a participant. For storage rules, doing a custom token check or checking a firestore doc is possible but often complex. We will allow authenticated users to read.
+      
+      // Allow upload if the user is authenticated and the file is under 10MB
+      allow write: if request.auth != null 
+                   && request.resource.size < 10 * 1024 * 1024 
+                   && request.resource.contentType.matches('image/.*|application/pdf|text/plain|application/zip');
+    }
+    
+    // User Avatars / Resumes
+    match /users/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024;
+    }
+  }
+}
