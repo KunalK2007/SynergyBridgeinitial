@@ -31,6 +31,97 @@ import OverviewTab from "./components/OverviewTab";
 import AIMentorTab from "./components/AIMentorTab";
 import FundingTab from "./components/FundingTab";
 
+const DEMO_PROJECT_FALLBACKS: Record<string, Partial<Project>> = {
+  demo_proj_1: {
+    title: "CropGuard AI",
+    category: "Agriculture & AI",
+    domain: "Agriculture",
+    description: "AI-assisted crop monitoring that helps identify crop stress and potential disease using image-based analysis.",
+    status: ProjectStatus.IN_PROGRESS,
+    progress: 45,
+    keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
+    problemId: "demo_prob_1",
+    applicationId: "demo_app_1"
+  },
+  demo_proj_2: {
+    title: "AquaSense",
+    category: "Sustainability & IoT",
+    domain: "Sustainability",
+    description: "An IoT-based water monitoring platform designed to detect abnormal consumption and reduce water waste.",
+    status: ProjectStatus.IN_PROGRESS,
+    progress: 60,
+    keyObjective: "Deploy smart flow meters and anomaly detection algorithms to identify underground pipeline leaks in real-time.",
+    problemId: "demo_prob_2",
+    applicationId: "demo_app_2"
+  },
+  demo_proj_3: {
+    title: "MediRoute",
+    category: "Healthcare Technology",
+    domain: "Healthcare",
+    description: "A smart appointment and patient-routing platform designed to reduce waiting times in community clinics.",
+    status: ProjectStatus.IN_PROGRESS,
+    progress: 35,
+    keyObjective: "Streamline patient triage and appointment slot allocations through predictive patient load scheduling.",
+    problemId: "demo_prob_3",
+    applicationId: "demo_app_3"
+  },
+  demo_proj_4: {
+    title: "EduBridge",
+    category: "Education Technology",
+    domain: "Education",
+    description: "An adaptive learning platform that helps students identify knowledge gaps and access personalized learning resources.",
+    status: ProjectStatus.ALLOCATED,
+    progress: 20,
+    keyObjective: "Build knowledge-graph driven adaptive learning paths tailored to engineering student skill requirements.",
+    problemId: "demo_prob_4",
+    applicationId: "demo_app_4"
+  },
+  demo_proj_5: {
+    title: "SolarTrack",
+    category: "Clean Energy",
+    domain: "Clean Energy",
+    description: "A solar monitoring solution that tracks energy generation, equipment performance, and maintenance requirements.",
+    status: ProjectStatus.IN_PROGRESS,
+    progress: 50,
+    keyObjective: "Optimize solar photovoltaic array output and forecast equipment degradation using IoT telemetry.",
+    problemId: "demo_prob_4",
+    applicationId: "demo_app_5"
+  },
+  demo_proj_6: {
+    title: "SafeTransit",
+    category: "Mobility & AI",
+    domain: "Mobility",
+    description: "A predictive transit safety platform that identifies potentially hazardous traffic conditions using aggregated mobility data.",
+    status: ProjectStatus.IN_PROGRESS,
+    progress: 70,
+    keyObjective: "Implement computer vision accident hazard prediction algorithms on urban traffic camera streams.",
+    problemId: "demo_prob_2",
+    applicationId: "demo_app_6"
+  },
+  demo_proj_7: {
+    title: "WasteWise",
+    category: "Sustainability",
+    domain: "Sustainability",
+    description: "A waste classification and collection optimization system designed to improve recycling efficiency.",
+    status: ProjectStatus.COMPLETED,
+    progress: 100,
+    keyObjective: "Automate municipal solid waste sorting using optical sensors and route optimization for collection vehicles.",
+    problemId: "demo_prob_1",
+    applicationId: "demo_app_7"
+  },
+  demo_proj_8: {
+    title: "SkillMatch",
+    category: "Career Technology",
+    domain: "Career Tech",
+    description: "A skills-based platform connecting learners with suitable projects, mentors, and practical opportunities.",
+    status: ProjectStatus.COMPLETED,
+    progress: 100,
+    keyObjective: "Match multi-disciplinary student teams to complex engineering problem statements using semantic embeddings.",
+    problemId: "demo_prob_3",
+    applicationId: "demo_app_8"
+  }
+};
+
 export default function ProjectWorkspace() {
   const { id } = useParams();
   const { currentUser } = useAuth();
@@ -43,24 +134,27 @@ export default function ProjectWorkspace() {
   useEffect(() => {
     async function load() {
       if (!currentUser || !id) return;
+      const projId = id as string;
       try {
-        const pSnap = await getDoc(doc(db, "projects", id as string));
+        const pSnap = await getDoc(doc(db, "projects", projId));
         if (!pSnap.exists()) {
-          // If demo project isn't found in DB, fallback to synthetic CropGuard AI demo project
-          if ((id as string).includes("demo") || (id as string) === "demo_proj_1") {
+          // If demo project fallback exists
+          const fallback = DEMO_PROJECT_FALLBACKS[projId] || (projId.includes("demo") ? DEMO_PROJECT_FALLBACKS.demo_proj_1 : null);
+          if (fallback) {
             const now = Date.now();
             setProject({
-              id: id as string,
-              problemId: "demo_prob_2",
-              applicationId: "demo_app_2",
+              id: projId,
+              problemId: fallback.problemId || "demo_prob_1",
+              applicationId: fallback.applicationId || "demo_app_1",
               studentIds: [currentUser.uid, "synthetic_student_2"],
               mentorId: "mentor_demo_uid",
-              title: "CropGuard AI",
-              description: "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis.",
-              category: "Agriculture & AI",
-              keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
-              status: ProjectStatus.IN_PROGRESS,
-              progress: 45,
+              title: fallback.title || "CropGuard AI",
+              description: fallback.description || "AI-assisted crop monitoring that helps identify crop stress and potential disease using image-based analysis.",
+              category: fallback.category || "Agriculture & AI",
+              domain: fallback.domain || "Agriculture",
+              keyObjective: fallback.keyObjective || "Deliver AI-assisted precision monitoring solution.",
+              status: fallback.status || ProjectStatus.IN_PROGRESS,
+              progress: fallback.progress || 45,
               startDate: now - 1000 * 60 * 60 * 24 * 20,
               targetCompletionDate: now + 1000 * 60 * 60 * 24 * 45,
               createdAt: now - 1000 * 60 * 60 * 24 * 20,
@@ -78,7 +172,7 @@ export default function ProjectWorkspace() {
           id: pSnap.id, 
           ...projData,
           title: projData.title || "CropGuard AI",
-          description: projData.description || "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis.",
+          description: projData.description || "AI-assisted crop monitoring that helps identify crop stress and potential disease using image-based analysis.",
           category: projData.category || "Agriculture & AI",
         } as Project;
         

@@ -306,39 +306,248 @@ async function seedProductionDemo() {
   const student2Id = userUIDs["student2.demo@synergybridge.local"];
   const mentorId = userUIDs["mentor.demo@synergybridge.local"];
   
-  const app1: Application = {
-    id: "demo_app_1",
-    problemId: "demo_prob_1",
-    applicantId: student1Id,
-    proposal: "Developing CropGuard AI: An edge-deployable deep learning mobile model for crop stress and disease diagnosis.",
-    motivation: "Passionate about combining edge neural networks and local agriculture solutions.",
-    status: ApplicationStatus.ACCEPTED,
-    createdAt: now - 1000 * 60 * 60 * 24 * 22,
-    updatedAt: now - 1000 * 60 * 60 * 24 * 20
-  };
-  await appsRef.doc(app1.id).set(app1, { merge: true });
+  const applicationsList: Application[] = [
+    {
+      id: "demo_app_1",
+      problemId: "demo_prob_1",
+      applicantId: student1Id,
+      proposal: "Developing CropGuard AI: An edge-deployable deep learning mobile model for crop stress and disease diagnosis.",
+      motivation: "Passionate about combining edge neural networks and local agriculture solutions.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 22,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 20
+    },
+    {
+      id: "demo_app_2",
+      problemId: "demo_prob_2",
+      applicantId: student1Id,
+      proposal: "AquaSense: IoT-driven anomaly detection and sensor network for urban and agricultural water conservation.",
+      motivation: "Solving critical water wastage through edge IoT analytics.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 20,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 18
+    },
+    {
+      id: "demo_app_3",
+      problemId: "demo_prob_3",
+      applicantId: student1Id,
+      proposal: "MediRoute: Intelligent triage queuing and predictive resource allocation for rural community clinics.",
+      motivation: "Improving healthcare access and clinic efficiency.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 18,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 16
+    },
+    {
+      id: "demo_app_4",
+      problemId: "demo_prob_4",
+      applicantId: student1Id,
+      proposal: "EduBridge: Knowledge-graph powered adaptive learning platform for technical skills development.",
+      motivation: "Democratizing higher education and specialized technical learning paths.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 15,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 14
+    },
+    {
+      id: "demo_app_5",
+      problemId: "demo_prob_4",
+      applicantId: student2Id,
+      proposal: "SolarTrack: AI-enhanced IoT telemetry system for distributed photovoltaic microgrids.",
+      motivation: "Accelerating renewable clean energy reliability.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 14,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 12
+    },
+    {
+      id: "demo_app_6",
+      problemId: "demo_prob_2",
+      applicantId: student1Id,
+      proposal: "SafeTransit: Real-time computer vision and mobility stream safety analysis for public transit.",
+      motivation: "Enhancing commuter safety through predictive AI.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 12,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 10
+    },
+    {
+      id: "demo_app_7",
+      problemId: "demo_prob_1",
+      applicantId: student1Id,
+      proposal: "WasteWise: Computer vision waste sorting and collection fleet route optimization.",
+      motivation: "Driving circular economy practices in municipal waste management.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 35,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 30
+    },
+    {
+      id: "demo_app_8",
+      problemId: "demo_prob_3",
+      applicantId: student2Id,
+      proposal: "SkillMatch: Semantic embedding talent-to-project matching platform for student innovators.",
+      motivation: "Connecting university students to interdisciplinary technical challenges.",
+      status: ApplicationStatus.ACCEPTED,
+      createdAt: now - 1000 * 60 * 60 * 24 * 30,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 25
+    }
+  ];
 
-  // 5. Create Active Project (CropGuard AI)
+  for (const app of applicationsList) {
+    await appsRef.doc(app.id).set(app, { merge: true });
+  }
+
+  // 5. Create 8 Synthetic Demo Projects
   const projectsRef = adminDb.collection('projects');
 
-  const proj1: Project = {
-    id: "demo_proj_1",
-    problemId: "demo_prob_1",
-    applicationId: "demo_app_1",
-    studentIds: [student1Id, student2Id],
-    mentorId: mentorId,
-    title: "CropGuard AI",
-    description: "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis.",
-    category: "Agriculture & AI",
-    keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
-    status: ProjectStatus.IN_PROGRESS,
-    progress: 45,
-    startDate: now - 1000 * 60 * 60 * 24 * 20,
-    targetCompletionDate: now + 1000 * 60 * 60 * 24 * 45,
-    createdAt: now - 1000 * 60 * 60 * 24 * 20,
-    updatedAt: now
-  };
-  await projectsRef.doc(proj1.id).set(proj1, { merge: true });
+  const projectsList: Project[] = [
+    {
+      id: "demo_proj_1",
+      problemId: "demo_prob_1",
+      applicationId: "demo_app_1",
+      studentIds: [student1Id, student2Id],
+      mentorId: mentorId,
+      title: "CropGuard AI",
+      description: "AI-assisted crop monitoring that helps identify crop stress and potential disease using image-based analysis.",
+      category: "Agriculture & AI",
+      domain: "Agriculture",
+      keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
+      status: ProjectStatus.IN_PROGRESS,
+      progress: 45,
+      startDate: now - 1000 * 60 * 60 * 24 * 20,
+      targetCompletionDate: now + 1000 * 60 * 60 * 24 * 45,
+      createdAt: now - 1000 * 60 * 60 * 24 * 20,
+      updatedAt: now
+    },
+    {
+      id: "demo_proj_2",
+      problemId: "demo_prob_2",
+      applicationId: "demo_app_2",
+      studentIds: [student1Id, student2Id, "synthetic_student_1"],
+      mentorId: mentorId,
+      title: "AquaSense",
+      description: "An IoT-based water monitoring platform designed to detect abnormal consumption and reduce water waste.",
+      category: "Sustainability & IoT",
+      domain: "Sustainability",
+      keyObjective: "Deploy smart flow meters and anomaly detection algorithms to identify underground pipeline leaks in real-time.",
+      status: ProjectStatus.IN_PROGRESS,
+      progress: 60,
+      startDate: now - 1000 * 60 * 60 * 24 * 18,
+      targetCompletionDate: now + 1000 * 60 * 60 * 24 * 40,
+      createdAt: now - 1000 * 60 * 60 * 24 * 18,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 1
+    },
+    {
+      id: "demo_proj_3",
+      problemId: "demo_prob_3",
+      applicationId: "demo_app_3",
+      studentIds: [student1Id, "synthetic_student_2"],
+      mentorId: mentorId,
+      title: "MediRoute",
+      description: "A smart appointment and patient-routing platform designed to reduce waiting times in community clinics.",
+      category: "Healthcare Technology",
+      domain: "Healthcare",
+      keyObjective: "Streamline patient triage and appointment slot allocations through predictive patient load scheduling.",
+      status: ProjectStatus.IN_PROGRESS,
+      progress: 35,
+      startDate: now - 1000 * 60 * 60 * 24 * 15,
+      targetCompletionDate: now + 1000 * 60 * 60 * 24 * 60,
+      createdAt: now - 1000 * 60 * 60 * 24 * 15,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 2
+    },
+    {
+      id: "demo_proj_4",
+      problemId: "demo_prob_4",
+      applicationId: "demo_app_4",
+      studentIds: [student1Id, "synthetic_student_3"],
+      mentorId: mentorId,
+      title: "EduBridge",
+      description: "An adaptive learning platform that helps students identify knowledge gaps and access personalized learning resources.",
+      category: "Education Technology",
+      domain: "Education",
+      keyObjective: "Build knowledge-graph driven adaptive learning paths tailored to engineering student skill requirements.",
+      status: ProjectStatus.ALLOCATED,
+      progress: 20,
+      startDate: now - 1000 * 60 * 60 * 24 * 10,
+      targetCompletionDate: now + 1000 * 60 * 60 * 24 * 80,
+      createdAt: now - 1000 * 60 * 60 * 24 * 10,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 3
+    },
+    {
+      id: "demo_proj_5",
+      problemId: "demo_prob_4",
+      applicationId: "demo_app_5",
+      studentIds: [student2Id, "synthetic_student_4"],
+      mentorId: mentorId,
+      title: "SolarTrack",
+      description: "A solar monitoring solution that tracks energy generation, equipment performance, and maintenance requirements.",
+      category: "Clean Energy",
+      domain: "Clean Energy",
+      keyObjective: "Optimize solar photovoltaic array output and forecast equipment degradation using IoT telemetry.",
+      status: ProjectStatus.IN_PROGRESS,
+      progress: 50,
+      startDate: now - 1000 * 60 * 60 * 24 * 12,
+      targetCompletionDate: now + 1000 * 60 * 60 * 24 * 50,
+      createdAt: now - 1000 * 60 * 60 * 24 * 12,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 2
+    },
+    {
+      id: "demo_proj_6",
+      problemId: "demo_prob_2",
+      applicationId: "demo_app_6",
+      studentIds: [student1Id, student2Id, "synthetic_student_5"],
+      mentorId: mentorId,
+      title: "SafeTransit",
+      description: "A predictive transit safety platform that identifies potentially hazardous traffic conditions using aggregated mobility data.",
+      category: "Mobility & AI",
+      domain: "Mobility",
+      keyObjective: "Implement computer vision accident hazard prediction algorithms on urban traffic camera streams.",
+      status: ProjectStatus.IN_PROGRESS,
+      progress: 70,
+      startDate: now - 1000 * 60 * 60 * 24 * 14,
+      targetCompletionDate: now + 1000 * 60 * 60 * 24 * 30,
+      createdAt: now - 1000 * 60 * 60 * 24 * 14,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 1
+    },
+    {
+      id: "demo_proj_7",
+      problemId: "demo_prob_1",
+      applicationId: "demo_app_7",
+      studentIds: [student1Id, "synthetic_student_6"],
+      mentorId: mentorId,
+      title: "WasteWise",
+      description: "A waste classification and collection optimization system designed to improve recycling efficiency.",
+      category: "Sustainability",
+      domain: "Sustainability",
+      keyObjective: "Automate municipal solid waste sorting using optical sensors and route optimization for collection vehicles.",
+      status: ProjectStatus.COMPLETED,
+      progress: 100,
+      startDate: now - 1000 * 60 * 60 * 24 * 60,
+      targetCompletionDate: now - 1000 * 60 * 60 * 24 * 5,
+      createdAt: now - 1000 * 60 * 60 * 24 * 60,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 5
+    },
+    {
+      id: "demo_proj_8",
+      problemId: "demo_prob_3",
+      applicationId: "demo_app_8",
+      studentIds: [student1Id, student2Id],
+      mentorId: mentorId,
+      title: "SkillMatch",
+      description: "A skills-based platform connecting learners with suitable projects, mentors, and practical opportunities.",
+      category: "Career Technology",
+      domain: "Career Tech",
+      keyObjective: "Match multi-disciplinary student teams to complex engineering problem statements using semantic embeddings.",
+      status: ProjectStatus.COMPLETED,
+      progress: 100,
+      startDate: now - 1000 * 60 * 60 * 24 * 45,
+      targetCompletionDate: now - 1000 * 60 * 60 * 24 * 2,
+      createdAt: now - 1000 * 60 * 60 * 24 * 45,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 2
+    }
+  ];
+
+  for (const proj of projectsList) {
+    await projectsRef.doc(proj.id).set(proj, { merge: true });
+  }
+
+  const proj1 = projectsList[0];
 
   // 6. Seed Tasks for CropGuard AI
   const tasksList: Task[] = [
