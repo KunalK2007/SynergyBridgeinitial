@@ -117,8 +117,10 @@ export default function Step5Constraints() {
               <label className="text-sm font-medium text-slate-300">Min Size</label>
               <input
                 type="number"
-                {...register("minTeamSize", { valueAsNumber: true })}
-                className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100"
+                min="1"
+                {...register("minTeamSize")}
+                placeholder="e.g. 2"
+                className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
@@ -126,8 +128,11 @@ export default function Step5Constraints() {
               <label className="text-sm font-medium text-slate-300">Max Size</label>
               <input
                 type="number"
-                {...register("maxTeamSize", { valueAsNumber: true })}
-                className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100"
+                min="1"
+                max="20"
+                {...register("maxTeamSize")}
+                placeholder="e.g. 5"
+                className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.maxTeamSize && <p className="text-xs text-red-500">{errors.maxTeamSize.message as string}</p>}
             </div>
@@ -144,9 +149,10 @@ export default function Step5Constraints() {
               <label className="text-sm font-medium text-slate-300">Duration (Weeks)</label>
               <input
                 type="number"
-                {...register("estimatedDurationWeeks", { valueAsNumber: true })}
+                min="1"
+                {...register("estimatedDurationWeeks")}
                 placeholder="e.g. 12"
-                className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100"
+                className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
