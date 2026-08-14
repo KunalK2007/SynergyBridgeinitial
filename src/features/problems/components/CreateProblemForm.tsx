@@ -236,42 +236,55 @@ export function CreateProblemForm() {
 
         {/* Role Notice */}
         {isStudent && (
-          <div className="bg-blue-950/40 border border-blue-800/60 rounded-xl p-4 flex items-start gap-3 text-sm text-blue-200">
-            <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 text-sm text-[#1C1C1E] shadow-sm">
+            <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-blue-300">Student Innovation Mode</p>
-              <p className="text-xs text-blue-200/80 mt-0.5">
-                As a student, submitting this challenge creates a <strong>Problem Proposal</strong>. It will be saved as a draft and submitted to faculty/mentors for verification before public listing.
+              <p className="font-bold text-blue-950 text-sm">Student Innovation Mode</p>
+              <p className="text-xs text-blue-900/90 mt-1 leading-relaxed">
+                As a student, submitting this challenge creates a <strong className="font-semibold text-blue-950">Problem Proposal</strong>. It will be saved as a draft and submitted to faculty/mentors for verification before public listing.
               </p>
             </div>
           </div>
         )}
 
         {/* Progress Stepper */}
-        <div className="mb-8 bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl">
-          <div className="flex justify-between items-center mb-3">
-            {steps.map((label, idx) => (
-              <div 
-                key={label} 
-                className={`flex-1 text-center text-xs md:text-sm font-medium transition-colors ${
-                  idx === currentStep
-                    ? 'text-blue-400 font-bold'
-                    : idx < currentStep
-                    ? 'text-emerald-400'
-                    : 'text-slate-500'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-1">
-                  {idx < currentStep && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 inline" />}
-                  <span>{label}</span>
+        <div className="mb-8 bg-white border border-[#9C7A4C]/20 p-4 sm:p-5 rounded-xl shadow-sm">
+          <div className="flex justify-between items-center mb-3.5 gap-1">
+            {steps.map((label, idx) => {
+              const isActive = idx === currentStep;
+              const isCompleted = idx < currentStep;
+
+              return (
+                <div 
+                  key={label} 
+                  className={`flex-1 text-center transition-all ${
+                    isActive
+                      ? 'text-[#9C7A4C] font-bold'
+                      : isCompleted
+                      ? 'text-emerald-700 font-semibold'
+                      : 'text-[#5B5F73] font-medium'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 inline shrink-0" />
+                    ) : (
+                      <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold ${
+                        isActive ? "bg-[#9C7A4C] text-white" : "bg-[#EFEDE8] text-[#5B5F73]"
+                      }`}>
+                        {idx + 1}
+                      </span>
+                    )}
+                    <span className="truncate">{label}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="relative flex items-center justify-between">
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-slate-800 rounded-full" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-2 bg-[#EFEDE8] rounded-full border border-[#9C7A4C]/10" />
             <div 
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-300"
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-2 bg-gradient-to-r from-[#9C7A4C] to-[#7A6039] rounded-full transition-all duration-300 shadow-xs"
               style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
           </div>
@@ -295,6 +308,7 @@ export function CreateProblemForm() {
                 variant="ghost" 
                 onClick={handleBack} 
                 disabled={currentStep === 0 || isSubmitting}
+                className="text-slate-300 hover:text-white hover:bg-slate-800 disabled:text-slate-600"
               >
                 Back
               </Button>
@@ -305,12 +319,13 @@ export function CreateProblemForm() {
                   variant="outline" 
                   onClick={() => saveProblem("DRAFT")}
                   disabled={isSubmitting}
+                  className="text-slate-200 border-slate-700 bg-slate-800/80 hover:bg-slate-800 hover:text-white"
                 >
                   Save Draft
                 </Button>
                 
                 {currentStep < steps.length - 1 ? (
-                  <Button type="button" onClick={handleNext}>
+                  <Button type="button" onClick={handleNext} className="bg-[#9C7A4C] hover:bg-[#7A6039] text-white">
                     Next Step
                   </Button>
                 ) : (
@@ -318,6 +333,7 @@ export function CreateProblemForm() {
                     type="button" 
                     onClick={() => saveProblem("PUBLISH")}
                     isLoading={isSubmitting}
+                    className="bg-[#9C7A4C] hover:bg-[#7A6039] text-white"
                   >
                     {isStudent ? "Submit for Review" : "Publish Problem"}
                   </Button>

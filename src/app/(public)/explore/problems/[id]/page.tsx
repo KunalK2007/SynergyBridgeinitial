@@ -8,7 +8,7 @@ import { Problem, ProblemStatus } from "@/types/problem";
 import { SDGs } from "@/lib/constants/taxonomy";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { BadgeCheck, ArrowLeft, Bookmark, Clock, Users, MapPin, ChevronRight, Coins } from "lucide-react";
+import { BadgeCheck, ArrowLeft, Bookmark, Clock, Users, MapPin, Coins } from "lucide-react";
 import toast from "react-hot-toast";
 import { ProblemFitPanel } from "@/features/matching/components/ProblemFitPanel";
 
@@ -115,7 +115,7 @@ export default function ProblemDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#F6F5F2] pt-24 pb-24">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
 
         {/* Navigation & Header */}
         <div className="mb-8">
@@ -124,29 +124,24 @@ export default function ProblemDetailPage() {
             className="flex items-center text-sm font-medium text-[#5B5F73] hover:text-[#1C1C1E] transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Repository
+            Back to Problems
           </button>
 
-          <div className="flex gap-2 items-center flex-wrap mb-4">
-            <span className="px-2 py-1 bg-[#9C7A4C]/10 text-[#9C7A4C] text-xs font-semibold rounded uppercase tracking-wider">
-              {problem.problemType.replace('_', ' ')}
-            </span>
-            <span className="text-sm text-[#5B5F73] font-medium flex items-center">
-              {problem.domain}
-              {problem.subDomain && <><ChevronRight className="w-3 h-3 mx-1" /> {problem.subDomain}</>}
-            </span>
-          </div>
-
-          <h1 className="text-3xl md:text-5xl font-bold text-[#1C1C1E] mb-6 leading-tight">
-            {problem.title}
-          </h1>
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 border-y border-[#5B5F73]/20">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-[#EFEDE8] flex items-center justify-center text-xl font-bold text-[#1C1C1E] border border-[#5B5F73]/20">
-                {problem.organizationName?.[0] || 'O'}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#9C7A4C] bg-[#9C7A4C]/10 px-2.5 py-1 rounded">
+                  {problem.domain}
+                </span>
+                <span className="text-xs font-medium text-[#5B5F73]">•</span>
+                <span className="text-xs font-medium text-[#5B5F73] uppercase tracking-wider">
+                  {problem.problemType.replace('_', ' ')}
+                </span>
               </div>
-              <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1C1C1E] tracking-tight mb-2">
+                {problem.title}
+              </h1>
+              <div className="flex items-center gap-4 text-sm text-[#5B5F73]">
                 <p className="text-sm font-medium text-[#1C1C1E] flex items-center gap-2">
                   {problem.organizationName || 'Unknown Organization'}
                   {isVerified && (
@@ -177,10 +172,10 @@ export default function ProblemDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
 
           {/* Main Content */}
-          <div className="md:col-span-2 space-y-12">
+          <div className="lg:col-span-2 space-y-12 min-w-0">
 
             <section>
               <h2 className="text-xl font-bold text-[#1C1C1E] mb-4">The Challenge</h2>
