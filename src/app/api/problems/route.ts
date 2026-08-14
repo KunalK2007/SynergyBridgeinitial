@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { adminAuth, adminDb, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import { problemSchema, draftProblemSchema } from "@/lib/validation/problem";
 import { ProblemStatus, VerificationStatus } from "@/types/problem";
 import { UserRole } from "@/types/auth";
@@ -30,15 +30,22 @@ export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized: Missing auth token" }, { status: 401 });
+      return NextResponse.json({ 
+        error: "Unauthorized: Missing authentication token", 
+        code: "UNAUTHENTICATED" 
+      }, { status: 401 });
     }
 
     const token = authHeader.split("Bearer ")[1];
-    let decodedToken;
+    let decodedToken: any;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
-    } catch {
-      return NextResponse.json({ error: "Unauthorized: Invalid auth token" }, { status: 401 });
+    } catch (err: any) {
+      console.warn("[POST /api/problems] verifyIdToken failed:", err?.message);
+      return NextResponse.json({ 
+        error: "Unauthorized: Invalid authentication token", 
+        code: "UNAUTHENTICATED" 
+      }, { status: 401 });
     }
 
     const uid = decodedToken.uid;
@@ -54,8 +61,8 @@ export async function POST(req: NextRequest) {
         displayName = userData.displayName || displayName;
         institutionId = userData.institutionId || null;
       }
-    } catch (err) {
-      console.warn("Could not fetch userDoc from adminDb, using token metadata fallback:", err);
+    } catch (err: any) {
+      console.warn("[POST /api/problems] Could not fetch userDoc from adminDb, using token metadata:", err?.message);
     }
 
     const body = await req.json();
@@ -73,6 +80,7 @@ export async function POST(req: NextRequest) {
       if (!validation.success) {
         return NextResponse.json({
           error: "Validation failed",
+          code: "VALIDATION_ERROR",
           details: validation.error.flatten().fieldErrors,
         }, { status: 422 });
       }
@@ -117,12 +125,15 @@ export async function POST(req: NextRequest) {
         if (existingSnap.exists) {
           const exData = existingSnap.data()!;
           if (exData.posterId && exData.posterId !== uid && userRole !== UserRole.ADMIN) {
-            return NextResponse.json({ error: "Forbidden: You cannot modify this problem" }, { status: 403 });
+            return NextResponse.json({ 
+              error: "Forbidden: You cannot modify this problem", 
+              code: "FORBIDDEN" 
+            }, { status: 403 });
           }
           createdAt = exData.createdAt || now;
         }
-      } catch (err) {
-        console.warn("Could not check existing problem snap:", err);
+      } catch (err: any) {
+        console.warn("[POST /api/problems] Could not verify existing problem snap:", err?.message);
       }
     }
 
@@ -142,7 +153,23 @@ export async function POST(req: NextRequest) {
 
     const problemDoc = sanitizeForFirestore(rawProblemDoc);
 
-    await problemRef.set(problemDoc, { merge: true });
+    try {
+      await problemRef.set(problemDoc, { merge: true });
+    } catch (writeErr: any) {
+      console.error("[POST /api/problems] Firestore admin write failed:", writeErr?.message);
+      if (!isFirebaseAdminConfigured()) {
+        return NextResponse.json({
+          error: "Firebase Admin credentials not configured on server",
+          code: "FIREBASE_CONFIGURATION_ERROR",
+          details: "Server-side service account is missing or invalid. Client-side persistence fallback available.",
+        }, { status: 500 });
+      }
+      return NextResponse.json({
+        error: "Failed to persist problem record to database",
+        code: "FIRESTORE_WRITE_ERROR",
+        details: writeErr?.message,
+      }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
@@ -153,9 +180,10 @@ export async function POST(req: NextRequest) {
       problem: problemDoc,
     });
   } catch (error: any) {
-    console.error("Error creating/updating problem:", error);
+    console.error("[POST /api/problems] Unexpected internal error:", error?.message);
     return NextResponse.json({
       error: "Internal Server Error",
+      code: "INTERNAL_ERROR",
       details: error.message,
     }, { status: 500 });
   }
@@ -165,15 +193,21 @@ export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ 
+        error: "Unauthorized", 
+        code: "UNAUTHENTICATED" 
+      }, { status: 401 });
     }
 
     const token = authHeader.split("Bearer ")[1];
-    let decodedToken;
+    let decodedToken: any;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
     } catch {
-      return NextResponse.json({ error: "Unauthorized: Invalid token" }, { status: 401 });
+      return NextResponse.json({ 
+        error: "Unauthorized: Invalid token", 
+        code: "UNAUTHENTICATED" 
+      }, { status: 401 });
     }
 
     const uid = decodedToken.uid;
@@ -189,9 +223,10 @@ export async function GET(req: NextRequest) {
       problems,
     });
   } catch (error: any) {
-    console.error("Error fetching user problems:", error);
+    console.error("[GET /api/problems] Error fetching user problems:", error?.message);
     return NextResponse.json({
       error: "Internal Server Error",
+      code: "INTERNAL_ERROR",
       details: error.message,
     }, { status: 500 });
   }

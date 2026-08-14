@@ -20,7 +20,8 @@ import {
   BadgeDollarSign, 
   ArrowLeft,
   Calendar,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from "lucide-react";
 import KanbanBoard from "./components/KanbanBoard";
 import ChatTab from "./components/ChatTab";
@@ -130,10 +131,14 @@ export default function ProjectWorkspace() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("OVERVIEW");
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     async function load() {
-      if (!currentUser || !id) return;
+      if (!currentUser || !id) {
+        setLoading(false);
+        return;
+      }
       const projId = id as string;
       try {
         const pSnap = await getDoc(doc(db, "projects", projId));
@@ -163,7 +168,8 @@ export default function ProjectWorkspace() {
             setLoading(false);
             return;
           }
-          router.push("/dashboard");
+          setNotFound(true);
+          setLoading(false);
           return;
         }
         
@@ -179,23 +185,43 @@ export default function ProjectWorkspace() {
         setProject(proj);
       } catch (err) {
         console.error("Error loading project workspace:", err);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [id, currentUser, router]);
+  }, [id, currentUser]);
 
   if (loading) {
     return (
-      <div className="py-24 text-center text-[#5B5F73]">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[#9C7A4C]" />
+      <div className="py-24 text-center text-[#5B5F73] dark:text-[#9499AD]">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[#9C7A4C] dark:text-[#C4A880]" />
         <p className="text-base font-medium">Loading project workspace...</p>
       </div>
     );
   }
 
-  if (!project) return null;
+  if (notFound || !project) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800">
+          <AlertTriangle className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">Project Not Found</h2>
+        <p className="text-sm text-[#5B5F73] dark:text-[#9499AD] max-w-md mx-auto">
+          The requested project workspace could not be found or you do not have permission to view it.
+        </p>
+        <div className="pt-2">
+          <Link href="/dashboard/projects">
+            <Button className="bg-[#9C7A4C] hover:bg-[#7A6039] text-white">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Return to Projects
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const canAssignMentor = currentUser?.role === "ADMIN" || currentUser?.role === "FACULTY";
   const isParticipant = 
@@ -218,42 +244,42 @@ export default function ProjectWorkspace() {
   return (
     <div className="max-w-7xl mx-auto flex flex-col min-h-[calc(100vh-8rem)] space-y-6">
       {/* Top Breadcrumb / Back Navigation */}
-      <div className="flex items-center gap-2 text-sm text-[#5B5F73]">
-        <Link href="/dashboard" className="hover:text-[#1C1C1E] transition-colors flex items-center gap-1">
+      <div className="flex items-center gap-2 text-sm text-[#5B5F73] dark:text-[#9499AD]">
+        <Link href="/dashboard" className="hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6] transition-colors flex items-center gap-1">
           <ArrowLeft className="w-4 h-4" /> Dashboard
         </Link>
         <span>/</span>
-        <Link href="/dashboard/projects" className="hover:text-[#1C1C1E] transition-colors">
+        <Link href="/dashboard/projects" className="hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6] transition-colors">
           Active Projects
         </Link>
         <span>/</span>
-        <span className="text-[#1C1C1E] font-medium truncate max-w-xs">{project.title}</span>
+        <span className="text-[#1C1C1E] dark:text-[#F3F4F6] font-medium truncate max-w-xs">{project.title}</span>
       </div>
 
       {/* Header */}
-      <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-2xl p-6 shadow-sm">
+      <div className="bg-[#EFEDE8] dark:bg-[#131722] border border-[#5B5F73]/20 dark:border-[#252A3D] rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-md bg-[#9C7A4C]/15 text-[#9C7A4C] text-xs font-bold uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-md bg-[#9C7A4C]/15 dark:bg-[#9C7A4C]/25 text-[#9C7A4C] dark:text-[#C4A880] text-xs font-bold uppercase tracking-wider">
                 {project.category || "Agriculture & AI"}
               </span>
-              <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
+              <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-500/20 dark:border-emerald-800">
                 {project.status ? project.status.replace(/_/g, " ") : "ACTIVE"}
               </span>
               {project.targetCompletionDate && (
-                <span className="text-xs text-[#5B5F73] flex items-center gap-1">
+                <span className="text-xs text-[#5B5F73] dark:text-[#9499AD] flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />
                   Target: {new Date(project.targetCompletionDate).toLocaleDateString()}
                 </span>
               )}
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E]">
+            <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] dark:text-[#F3F4F6]">
               {project.title}
             </h1>
 
-            <p className="text-sm text-[#5B5F73] max-w-3xl">
+            <p className="text-sm text-[#5B5F73] dark:text-[#9499AD] max-w-3xl">
               {project.description || "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis."}
             </p>
           </div>
@@ -264,16 +290,16 @@ export default function ProjectWorkspace() {
                 <Settings className="w-4 h-4 mr-2" /> Manage Mentor
               </Button>
             )}
-            <div className="text-right hidden sm:block bg-white/70 px-4 py-2 rounded-xl border border-[#5B5F73]/15">
-              <div className="text-xs font-semibold text-[#5B5F73] uppercase tracking-wider">Progress</div>
-              <div className="text-2xl font-black text-[#1C1C1E]">{project.progress || 45}%</div>
+            <div className="text-right hidden sm:block bg-white/70 dark:bg-[#1A1E2E] px-4 py-2 rounded-xl border border-[#5B5F73]/15 dark:border-[#252A3D]">
+              <div className="text-xs font-semibold text-[#5B5F73] dark:text-[#9499AD] uppercase tracking-wider">Progress</div>
+              <div className="text-2xl font-black text-[#1C1C1E] dark:text-[#F3F4F6]">{project.progress || 45}%</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs Navigation Bar */}
-      <div className="border-b border-[#5B5F73]/20 overflow-x-auto custom-scrollbar">
+      <div className="border-b border-[#5B5F73]/20 dark:border-[#252A3D] overflow-x-auto custom-scrollbar">
         <div className="flex gap-2 min-w-max pb-1">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -285,8 +311,8 @@ export default function ProjectWorkspace() {
                   isActive
                     ? tab.id === "AI_MENTOR"
                       ? "bg-purple-600 text-white shadow-sm"
-                      : "bg-[#1C1C1E] text-white shadow-sm"
-                    : "text-[#5B5F73] hover:text-[#1C1C1E] hover:bg-[#EFEDE8]/80"
+                      : "bg-[#1C1C1E] dark:bg-[#9C7A4C] text-white shadow-sm"
+                    : "text-[#5B5F73] dark:text-[#9499AD] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6] hover:bg-[#EFEDE8]/80 dark:hover:bg-[#1A1E2E]"
                 }`}
               >
                 <tab.icon className="w-4 h-4" />

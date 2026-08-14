@@ -5,11 +5,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { useAuth } from "@/features/auth/AuthContext";
 import { problemSchema, ProblemFormValues } from "@/lib/validation/problem";
-import { Problem, TeamPreference } from "@/types/problem";
+import { Problem, TeamPreference, ProblemStatus, VerificationStatus } from "@/types/problem";
 import { UserRole } from "@/types/auth";
 import { useLeaveConfirm } from "@/hooks/use-leave-confirm";
 import toast from "react-hot-toast";
@@ -33,6 +33,27 @@ const steps = [
   "Constraints",
   "Review & Publish"
 ];
+
+function sanitizeObject<T>(data: T): T {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data
+      .map(item => sanitizeObject(item))
+      .filter(item => item !== undefined) as unknown as T;
+  }
+  if (typeof data === "object" && !(data instanceof Date)) {
+    const result: Record<string, any> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        result[key] = sanitizeObject(value);
+      }
+    }
+    return result as T;
+  }
+  return data;
+}
 
 export function CreateProblemForm() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -182,40 +203,99 @@ export function CreateProblemForm() {
     setIsSubmitting(true);
     try {
       const token = await getIdToken();
-      if (!token) {
-        toast.error("Authentication session expired. Please sign in again.");
-        return;
-      }
-
       const rawValues = methods.getValues();
       const formData = cleanFormData(rawValues);
+      const activeProblemId = savedProblemId || draftIdParam || undefined;
 
-      const payload = {
-        action,
-        problemId: savedProblemId || draftIdParam || undefined,
-        data: formData,
-      };
+      let savedId: string | null = null;
+      let usedClientFallback = false;
 
-      const res = await fetch("/api/problems", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      // 1. Attempt Server-Side API Endpoint
+      if (token) {
+        try {
+          const payload = {
+            action,
+            problemId: activeProblemId,
+            data: formData,
+          };
 
-      const data = await res.json();
+          const res = await fetch("/api/problems", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
 
-      if (!res.ok) {
-        toast.error(data.error || data.details || "Failed to save problem");
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            savedId = data.problemId;
+          } else if (data.code === "VALIDATION_ERROR") {
+            toast.error(data.error || "Please check all required fields");
+            setIsSubmitting(false);
+            return;
+          } else if (data.code === "FORBIDDEN") {
+            toast.error("You do not have permission to modify this problem");
+            setIsSubmitting(false);
+            return;
+          } else {
+            console.warn("[CreateProblemForm] Server API returned error or config issue, trying client Firestore path:", data);
+            usedClientFallback = true;
+          }
+        } catch (fetchErr) {
+          console.warn("[CreateProblemForm] Server API fetch failed, trying client Firestore path:", fetchErr);
+          usedClientFallback = true;
+        }
+      } else {
+        usedClientFallback = true;
+      }
+
+      // 2. Client-Side Firestore Path (guaranteed against synergybridgee-dev using user credentials & firestore.rules)
+      if (!savedId && usedClientFallback) {
+        const now = Date.now();
+        const problemRef = activeProblemId 
+          ? doc(db, "problems", activeProblemId)
+          : doc(collection(db, "problems"));
+
+        const finalProblemId = problemRef.id;
+        const isStudentRole = currentUser.role === UserRole.STUDENT;
+
+        const finalStatus = action === "PUBLISH" 
+          ? (isStudentRole ? ProblemStatus.DRAFT : ProblemStatus.PUBLISHED)
+          : ProblemStatus.DRAFT;
+
+        const finalVerification = action === "PUBLISH"
+          ? (isStudentRole ? VerificationStatus.PENDING_REVIEW : (currentUser.role === UserRole.ADMIN ? VerificationStatus.VERIFIED : VerificationStatus.UNVERIFIED))
+          : VerificationStatus.UNVERIFIED;
+
+        const finalVisibility = (action === "PUBLISH" && !isStudentRole) ? "PUBLIC" : "PRIVATE";
+
+        const docPayload = sanitizeObject({
+          ...formData,
+          id: finalProblemId,
+          status: finalStatus,
+          verificationStatus: finalVerification,
+          visibility: finalVisibility,
+          posterId: currentUser.uid,
+          posterRole: currentUser.role || UserRole.STUDENT,
+          organizationName: currentUser.displayName || "Innovator",
+          institutionId: currentUser.institutionId || null,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await setDoc(problemRef, docPayload, { merge: true });
+        savedId = finalProblemId;
+      }
+
+      if (!savedId) {
+        toast.error("Could not save problem. Please check your network connection and retry.");
         return;
       }
 
-      const newProblemId = data.problemId;
-      if (newProblemId) {
-        setSavedProblemId(newProblemId);
-      }
+      setSavedProblemId(savedId);
 
       if (action === "PUBLISH") {
         if (currentUser.role === UserRole.STUDENT) {
@@ -223,15 +303,15 @@ export function CreateProblemForm() {
           router.push("/dashboard/problems");
         } else {
           toast.success("Problem published successfully!");
-          router.push(`/explore/problems/${newProblemId}`);
+          router.push(`/explore/problems/${savedId}`);
         }
       } else {
         toast.success("Draft saved successfully!");
-        if (typeof window !== "undefined" && newProblemId) {
+        if (typeof window !== "undefined" && savedId) {
           try {
             const currentUrl = new URL(window.location.href);
             if (!currentUrl.searchParams.get("id")) {
-              currentUrl.searchParams.set("id", newProblemId);
+              currentUrl.searchParams.set("id", savedId);
               window.history.replaceState(null, "", currentUrl.toString());
             }
           } catch {
@@ -239,9 +319,9 @@ export function CreateProblemForm() {
           }
         }
       }
-    } catch (error) {
-      console.error("Save problem error:", error);
-      toast.error("An unexpected error occurred while saving the problem.");
+    } catch (error: any) {
+      console.error("[CreateProblemForm] Save problem error:", error);
+      toast.error(error.message || "An unexpected error occurred while saving the problem.");
     } finally {
       setIsSubmitting(false);
     }
