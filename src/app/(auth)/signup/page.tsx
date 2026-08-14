@@ -33,18 +33,14 @@ export default function SignupPage() {
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
-      // 1. Create auth user
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
-      // 2. Update auth profile
       await updateProfile(user, { displayName: data.name });
 
-      // 3. Determine initial status based on role
       const needsApproval = [UserRole.INDUSTRY, UserRole.GOVERNMENT, UserRole.FACULTY, UserRole.INCUBATION].includes(data.role);
       const accountStatus = needsApproval ? AccountStatus.PENDING : AccountStatus.ACTIVE;
 
-      // 4. Create user document in Firestore
       // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
       await setDoc(doc(db, "users", user.uid), {
@@ -58,7 +54,6 @@ export default function SignupPage() {
         updatedAt: now,
       });
 
-      // 5. Send email verification
       await sendEmailVerification(user);
 
       toast.success("Account created! Please check your email to verify.");
@@ -87,7 +82,7 @@ export default function SignupPage() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none">Full Name</label>
+            <label className="text-sm font-medium leading-none text-[#1C1C1E]">Full Name</label>
             <Input
               placeholder="John Doe"
               {...register("name")}
@@ -95,7 +90,7 @@ export default function SignupPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none">Email</label>
+            <label className="text-sm font-medium leading-none text-[#1C1C1E]">Email</label>
             <Input
               type="email"
               placeholder="m@example.com"
@@ -104,7 +99,7 @@ export default function SignupPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none">Password</label>
+            <label className="text-sm font-medium leading-none text-[#1C1C1E]">Password</label>
             <Input
               type="password"
               {...register("password")}
@@ -112,17 +107,17 @@ export default function SignupPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none text-slate-200">Role</label>
+            <label className="text-sm font-medium leading-none text-[#1C1C1E]">Role</label>
             <select
               {...register("role")}
-              className="flex h-10 w-full rounded-md border border-slate-700/60 bg-slate-900/50 px-3 py-2 text-sm text-slate-100 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 focus-visible:border-purple-500 transition-colors duration-200 appearance-none"
+              className="flex h-10 w-full rounded-md border border-[#5B5F73]/50 bg-[#F6F5F2] px-3 py-2 text-sm text-[#1C1C1E] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9C7A4C]/50 focus-visible:border-[#9C7A4C] transition-colors duration-200 appearance-none"
             >
-              <option className="bg-slate-900 text-slate-100" value={UserRole.STUDENT}>Student</option>
-              <option className="bg-slate-900 text-slate-100" value={UserRole.MENTOR}>Mentor</option>
-              <option className="bg-slate-900 text-slate-100" value={UserRole.INDUSTRY}>Industry Partner</option>
-              <option className="bg-slate-900 text-slate-100" value={UserRole.GOVERNMENT}>Government Official</option>
-              <option className="bg-slate-900 text-slate-100" value={UserRole.FACULTY}>Faculty Coordinator</option>
-              <option className="bg-slate-900 text-slate-100" value={UserRole.INCUBATION}>Incubation Partner</option>
+              <option className="bg-[#F6F5F2] text-[#1C1C1E]" value={UserRole.STUDENT}>Student</option>
+              <option className="bg-[#F6F5F2] text-[#1C1C1E]" value={UserRole.MENTOR}>Mentor</option>
+              <option className="bg-[#F6F5F2] text-[#1C1C1E]" value={UserRole.INDUSTRY}>Industry Partner</option>
+              <option className="bg-[#F6F5F2] text-[#1C1C1E]" value={UserRole.GOVERNMENT}>Government Official</option>
+              <option className="bg-[#F6F5F2] text-[#1C1C1E]" value={UserRole.FACULTY}>Faculty Coordinator</option>
+              <option className="bg-[#F6F5F2] text-[#1C1C1E]" value={UserRole.INCUBATION}>Incubation Partner</option>
             </select>
             {errors.role && <p className="mt-1 text-sm text-red-500">{errors.role.message}</p>}
           </div>
@@ -132,9 +127,9 @@ export default function SignupPage() {
         </form>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <div className="text-sm text-slate-400">
+        <div className="text-sm text-[#5B5F73]">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 hover:underline">
+          <Link href="/login" className="text-[#9C7A4C] hover:text-[#7A6039] hover:underline">
             Log in
           </Link>
         </div>

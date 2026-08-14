@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
       <CardContent>
         {isSubmitted ? (
           <div className="text-center space-y-4">
-            <div className="text-sm text-slate-300">
+            <div className="text-sm text-[#5B5F73]">
               If an account exists with that email, a reset link has been sent.
             </div>
             <Button variant="outline" className="w-full" onClick={() => setIsSubmitted(false)}>
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">Email</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Email</label>
               <Input
                 type="email"
                 placeholder="m@example.com"
@@ -74,9 +74,9 @@ export default function ForgotPasswordPage() {
         )}
       </CardContent>
       <CardFooter className="flex justify-center">
-        <div className="text-sm text-slate-400">
+        <div className="text-sm text-[#5B5F73]">
           Remember your password?{" "}
-          <Link href="/login" className="text-blue-500 hover:underline">
+          <Link href="/login" className="text-[#9C7A4C] hover:text-[#7A6039] hover:underline">
             Log in
           </Link>
         </div>

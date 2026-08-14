@@ -7,7 +7,6 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { Project } from "@/types/project";
 import { calculateProjectHealth, ProjectHealthStatus, ProjectHealthResult } from "@/lib/utils/project-health";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ArrowRight, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 
@@ -41,42 +40,42 @@ export function StudentActiveProjects() {
 
   return (
     <div className="space-y-4 mb-8">
-      <h2 className="text-xl font-bold text-white">Your Active Projects</h2>
+      <h2 className="text-xl font-bold text-[#1C1C1E]">Your Active Projects</h2>
       <div className="grid grid-cols-1 gap-4">
         {projects.map(({ project, health, progress }) => {
           let HealthIcon = CheckCircle;
-          let healthColor = "text-emerald-400";
+          let healthColor = "text-emerald-600";
           if (health.status === ProjectHealthStatus.AT_RISK) {
             HealthIcon = AlertTriangle;
-            healthColor = "text-amber-400";
+            healthColor = "text-amber-600";
           } else if (health.status === ProjectHealthStatus.STALLED) {
             HealthIcon = Clock;
-            healthColor = "text-red-400";
+            healthColor = "text-red-600";
           }
 
           return (
-            <Card key={project.id} className="bg-slate-900 border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+            <Card key={project.id} className="border-[#9C7A4C]/20 shadow-[0_0_15px_rgba(156,122,76,0.05)]">
               <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`flex items-center text-xs font-bold uppercase ${healthColor}`}>
                       <HealthIcon className="w-3 h-3 mr-1" /> {health.status.replace("_", " ")}
                     </span>
-                    <span className="text-slate-500 text-xs">•</span>
-                    <span className="text-slate-400 text-xs uppercase font-bold">{project.status.replace(/_/g, " ")}</span>
+                    <span className="text-[#5B5F73] text-xs">•</span>
+                    <span className="text-[#5B5F73] text-xs uppercase font-bold">{project.status.replace(/_/g, " ")}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white">{project.title}</h3>
-                  <p className="text-sm text-slate-400 line-clamp-1">
+                  <h3 className="text-lg font-bold text-[#1C1C1E]">{project.title}</h3>
+                  <p className="text-sm text-[#5B5F73] line-clamp-1">
                     {project.mentorId ? "Mentor Assigned" : "Awaiting Mentor Assignment"}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-6 w-full md:w-auto mt-4 md:mt-0">
                   <div className="text-center w-24">
-                    <div className="text-xl font-black text-white">{progress}%</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Progress</div>
+                    <div className="text-xl font-black text-[#1C1C1E]">{progress}%</div>
+                    <div className="text-[10px] text-[#5B5F73] uppercase tracking-wider font-bold">Progress</div>
                   </div>
-                  <Link href={`/dashboard/projects/${project.id}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 py-2 w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Link href={`/dashboard/projects/${project.id}`} className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 py-2 w-full md:w-auto bg-[#9C7A4C] hover:bg-[#7A6039] text-white">
                     Workspace <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
                 </div>

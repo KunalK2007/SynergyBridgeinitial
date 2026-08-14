@@ -52,7 +52,7 @@ export default function VerifyEmailPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-[#5B5F73]">
           Please check your inbox and click the link to verify your account. If you haven&apos;t received the email, you can request a new one below.
         </p>
         <div className="flex flex-col space-y-3">

@@ -9,7 +9,7 @@ import { Users, FileText, CheckCircle, Percent, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function InstitutionAnalyticsPage() {
-  const { currentUser: user } = useAuth();
+  const { currentUser: user, getIdToken } = useAuth();
   const [data, setData] = useState<InstitutionAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,7 +18,8 @@ export default function InstitutionAnalyticsPage() {
     if (!user) return;
     const fetchAnalytics = async () => {
       try {
-        const token = await user.uid;
+        const token = await getIdToken();
+        if (!token) return;
         const res = await fetch("/api/analytics/institution", {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -34,12 +35,13 @@ export default function InstitutionAnalyticsPage() {
       }
     };
     fetchAnalytics();
-  }, [user]);
+  }, [user, getIdToken]);
 
   const handleExport = async () => {
     if (!user) return;
     try {
-      const token = await user.uid;
+      const token = await getIdToken();
+      if (!token) return;
       const res = await fetch("/api/analytics/institution/export", {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -86,7 +88,7 @@ export default function InstitutionAnalyticsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Institution Analytics</h1>
-          <p className="text-muted-foreground">Overview of participation, outcomes, and ecosystem impact.</p>
+          <p className="text-[#5B5F73]">Overview of participation, outcomes, and ecosystem impact.</p>
         </div>
         <Button onClick={handleExport} variant="outline">
           <Download className="w-4 h-4 mr-2" />

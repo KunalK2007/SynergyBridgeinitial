@@ -23,7 +23,6 @@ export default function DashboardLayout({
       } else if (accountStatus === AccountStatus.PENDING && pathname !== "/pending-approval") {
         router.push("/pending-approval");
       } else if (pathname === "/dashboard") {
-        // Redirect base dashboard to role-specific dashboard
         if (role) {
           router.push(`/dashboard/${role.toLowerCase()}`);
         }
@@ -33,14 +32,14 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="flex min-h-screen items-center justify-center bg-[#1E2135]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#9C7A4C]" />
       </div>
     );
   }
 
   if (!isAuthenticated || accountStatus === AccountStatus.PENDING) {
-    return null; // Will redirect via useEffect
+    return null;
   }
 
   return <DashboardShell>{children}</DashboardShell>;

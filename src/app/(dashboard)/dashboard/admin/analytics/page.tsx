@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Building, Users, Briefcase, Activity } from "lucide-react";
 
 export default function PlatformAnalyticsPage() {
-  const { currentUser: user } = useAuth();
+  const { currentUser: user, getIdToken } = useAuth();
   const [data, setData] = useState<PlatformAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -17,7 +17,8 @@ export default function PlatformAnalyticsPage() {
     if (!user) return;
     const fetchAnalytics = async () => {
       try {
-        const token = await user.uid;
+        const token = await getIdToken();
+        if (!token) return;
         const res = await fetch("/api/analytics/platform", {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -33,7 +34,7 @@ export default function PlatformAnalyticsPage() {
       }
     };
     fetchAnalytics();
-  }, [user]);
+  }, [user, getIdToken]);
 
   if (loading) {
     return (

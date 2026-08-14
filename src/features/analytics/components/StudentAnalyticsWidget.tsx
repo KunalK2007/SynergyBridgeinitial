@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 export function StudentAnalyticsWidget() {
-  const { currentUser: user } = useAuth();
+  const { currentUser: user, getIdToken } = useAuth();
   const [data, setData] = useState<StudentAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +18,8 @@ export function StudentAnalyticsWidget() {
     if (!user) return;
     const fetchAnalytics = async () => {
       try {
-        const token = await user.uid;
+        const token = await getIdToken();
+        if (!token) return;
         const res = await fetch("/api/analytics/student", {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -32,7 +33,7 @@ export function StudentAnalyticsWidget() {
       }
     };
     fetchAnalytics();
-  }, [user]);
+  }, [user, getIdToken]);
 
   if (loading) {
     return (
@@ -53,56 +54,55 @@ export function StudentAnalyticsWidget() {
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-xl">SynergyBridge Outcomes & Impact</CardTitle>
+        <CardTitle className="text-xl">SynergyBridge Outcomes &amp; Impact</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-          <div className="flex flex-col items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <Target className="w-5 h-5 text-blue-500 mb-2" />
-            <span className="text-2xl font-bold">{data.averageFitScore.available ? `${Math.round(data.averageFitScore.value as number)}%` : "--"}</span>
-            <span className="text-xs text-slate-500">Avg Fit Score</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+            <Target className="w-5 h-5 text-[#9C7A4C] mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E]">{data.averageFitScore.available ? `${Math.round(data.averageFitScore.value as number)}%` : "--"}</span>
+            <span className="text-xs text-[#5B5F73]">Avg Fit Score</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <FileText className="w-5 h-5 text-indigo-500 mb-2" />
-            <span className="text-2xl font-bold">{data.applicationsSubmitted.available ? data.applicationsSubmitted.value : "--"}</span>
-            <span className="text-xs text-slate-500">Applications</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+            <FileText className="w-5 h-5 text-[#5B5F73] mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E]">{data.applicationsSubmitted.available ? data.applicationsSubmitted.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73]">Applications</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <Briefcase className="w-5 h-5 text-orange-500 mb-2" />
-            <span className="text-2xl font-bold">{data.projectsActive.available ? data.projectsActive.value : "--"}</span>
-            <span className="text-xs text-slate-500">Active Projects</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+            <Briefcase className="w-5 h-5 text-amber-600 mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E]">{data.projectsActive.available ? data.projectsActive.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73]">Active Projects</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <CheckCircle className="w-5 h-5 text-green-500 mb-2" />
-            <span className="text-2xl font-bold">{data.projectsCompleted.available ? data.projectsCompleted.value : "--"}</span>
-            <span className="text-xs text-slate-500">Completed Projects</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+            <CheckCircle className="w-5 h-5 text-emerald-600 mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E]">{data.projectsCompleted.available ? data.projectsCompleted.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73]">Completed Projects</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
             <Award className="w-5 h-5 text-yellow-500 mb-2" />
-            <span className="text-2xl font-bold">{data.certificatesIssued.available ? data.certificatesIssued.value : "--"}</span>
-            <span className="text-xs text-slate-500">Certificates</span>
+            <span className="text-2xl font-bold text-[#1C1C1E]">{data.certificatesIssued.available ? data.certificatesIssued.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73]">Certificates</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
             <Flame className="w-5 h-5 text-red-500 mb-2" />
-            <span className="text-2xl font-bold">{data.currentStreak.available ? data.currentStreak.value : "--"}</span>
-            <span className="text-xs text-slate-500">Day Streak</span>
+            <span className="text-2xl font-bold text-[#1C1C1E]">{data.currentStreak.available ? data.currentStreak.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73]">Day Streak</span>
           </div>
         </div>
-        
-        {/* Your Impact / Actionable Area */}
-        <div className="flex flex-col md:flex-row gap-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+
+        <div className="flex flex-col md:flex-row gap-4 p-4 bg-[#9C7A4C]/5 rounded-lg border border-[#9C7A4C]/10">
           <div className="flex-1">
-            <h4 className="font-semibold text-sm mb-1">Boost Your Impact</h4>
-            <p className="text-xs text-slate-600 mb-3">
-              {data.profileCompleteness.value === 100 
+            <h4 className="font-semibold text-sm text-[#1C1C1E] mb-1">Boost Your Impact</h4>
+            <p className="text-xs text-[#5B5F73] mb-3">
+              {data.profileCompleteness.value === 100
                 ? "Your profile is fully complete. Explore new problems to match your highest fit score!"
                 : `Your profile is only ${data.profileCompleteness.value}% complete. Update your skills to improve your match rate.`}
             </p>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" >
+              <Button size="sm" variant="outline">
                 <Link href="/dashboard/problems">Find Problems</Link>
               </Button>
-              <Button size="sm" variant="default" >
+              <Button size="sm" variant="default">
                 <Link href="/dashboard/mentor">Ask AI Mentor</Link>
               </Button>
             </div>

@@ -38,23 +38,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#F6F5F2] flex flex-col md:flex-row">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950">
-        <span className="text-xl font-bold text-blue-500">SynergyBridge</span>
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-[#2E3350] bg-[#1E2135]">
+        <span className="text-xl font-bold text-[#9C7A4C]">SynergyBridge</span>
+        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#F6F5F2] hover:bg-[#262B45]">
           {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
       </div>
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 transform bg-slate-900 border-r border-slate-800 transition-transform duration-200 ease-in-out md:relative md:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 w-64 transform bg-[#1E2135] border-r border-[#2E3350] transition-transform duration-200 ease-in-out md:relative md:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="h-full flex flex-col">
           <div className="p-6 hidden md:block">
-            <span className="text-2xl font-bold text-blue-500 tracking-tight">SynergyBridge</span>
+            <span className="text-2xl font-bold text-[#9C7A4C] tracking-tight">SynergyBridge</span>
           </div>
           
           <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
@@ -67,8 +67,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-[#9C7A4C] text-white"
+                      : "text-[#F6F5F2]/80 hover:bg-[#262B45] hover:text-[#F6F5F2]"
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -79,19 +79,19 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="p-4 border-t border-slate-800">
+          <div className="p-4 border-t border-[#2E3350]">
             <div className="flex items-center space-x-3 mb-4 px-2">
-              <div className="h-8 w-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-medium text-white uppercase">
+              <div className="h-8 w-8 rounded-full bg-[#262B45] flex items-center justify-center text-sm font-medium text-[#F6F5F2] uppercase">
                 {currentUser?.displayName?.[0] || "U"}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-white truncate max-w-[140px]">
+                <span className="text-sm font-medium text-[#F6F5F2] truncate max-w-[140px]">
                   {currentUser?.displayName}
                 </span>
-                <span className="text-xs text-slate-400 capitalize">{role?.toLowerCase()}</span>
+                <span className="text-xs text-[#5B5F73] capitalize">{role?.toLowerCase()}</span>
               </div>
             </div>
-            <Button variant="ghost" className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-slate-800" onClick={logout}>
+            <Button variant="ghost" className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-[#262B45]" onClick={logout}>
               <LogOut className="mr-3 h-5 w-5" />
               Sign out
             </Button>
@@ -102,7 +102,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-slate-950/80 z-40 md:hidden"
+          className="fixed inset-0 bg-[#1E2135]/80 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

@@ -16,35 +16,30 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        // Fetch profiles where showOnLeaderboard == true
         const q = query(
           collection(db, "gamificationProfiles"),
           where("showOnLeaderboard", "==", true)
         );
-        
+
         const snap = await getDocs(q);
         const profiles = snap.docs.map(d => d.data() as GamificationProfile);
-        
-        // We need to fetch display names for these profiles
-        // For MVP, we fetch individually or we could have replicated displayName into gamificationProfiles
-        // Let's fetch users concurrently
+
         const entryPromises = profiles.map(async (p) => {
           const uDoc = await getDoc(doc(db, "users", p.userId));
           const displayName = uDoc.exists() ? uDoc.data().displayName : "Anonymous Student";
-          
+
           return {
             userId: p.userId,
             displayName,
             xp: p.xp,
             level: p.level,
-            rank: 0, // Assigned later
+            rank: 0,
             achievementCount: p.totalAchievements,
           } as LeaderboardEntry;
         });
 
         const resolvedEntries = await Promise.all(entryPromises);
 
-        // Deterministic Sort: XP DESC -> LEVEL DESC -> ACHIEVEMENT COUNT DESC -> USER ID ASC
         resolvedEntries.sort((a, b) => {
           if (b.xp !== a.xp) return b.xp - a.xp;
           if (b.level !== a.level) return b.level - a.level;
@@ -52,7 +47,6 @@ export default function LeaderboardPage() {
           return a.userId.localeCompare(b.userId);
         });
 
-        // Assign ranks
         resolvedEntries.forEach((entry, index) => {
           entry.rank = index + 1;
         });
@@ -64,57 +58,60 @@ export default function LeaderboardPage() {
         setLoading(false);
       }
     }
-    
+
     load();
   }, []);
 
+  // Suppress unused import warning
+  void getLevelProgress;
+
   return (
-    <div className="min-h-screen bg-slate-950 pt-24 pb-24">
+    <div className="min-h-screen bg-[#F6F5F2] pt-24 pb-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        
+
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-black text-white mb-4">SynergyBridge Leaderboard</h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+          <h1 className="text-4xl font-black text-[#1C1C1E] mb-4">SynergyBridge Leaderboard</h1>
+          <p className="text-[#5B5F73] text-lg max-w-2xl mx-auto">
             Discover the top innovators driving impact through skill-building, teamwork, and problem-solving.
           </p>
         </div>
 
         {loading ? (
-          <div className="text-center text-slate-400 py-12">Loading leaderboard...</div>
+          <div className="text-center text-[#5B5F73] py-12">Loading leaderboard...</div>
         ) : (
           <div className="space-y-4">
             {entries.length === 0 ? (
-              <Card className="bg-slate-900 border-slate-800">
-                <CardContent className="p-12 text-center text-slate-400">
+              <Card>
+                <CardContent className="p-12 text-center text-[#5B5F73]">
                   No participants on the leaderboard yet. Check your privacy settings to be included!
                 </CardContent>
               </Card>
             ) : (
               entries.map((entry) => (
-                <Card 
-                  key={entry.userId} 
-                  className={`bg-slate-900 border-slate-800 transition-transform hover:scale-[1.01] ${
-                    entry.rank <= 3 ? "border-indigo-500/30" : ""
+                <Card
+                  key={entry.userId}
+                  className={`transition-transform hover:scale-[1.01] ${
+                    entry.rank <= 3 ? "border-[#9C7A4C]/40" : ""
                   }`}
                 >
                   <CardContent className="p-4 sm:p-6 flex items-center gap-4 sm:gap-6">
                     {/* Rank */}
                     <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center font-black text-2xl">
                       {entry.rank === 1 && <Trophy className="w-10 h-10 text-yellow-500" />}
-                      {entry.rank === 2 && <Medal className="w-9 h-9 text-slate-300" />}
+                      {entry.rank === 2 && <Medal className="w-9 h-9 text-[#5B5F73]" />}
                       {entry.rank === 3 && <Medal className="w-8 h-8 text-amber-600" />}
-                      {entry.rank > 3 && <span className="text-slate-500">#{entry.rank}</span>}
+                      {entry.rank > 3 && <span className="text-[#5B5F73]">#{entry.rank}</span>}
                     </div>
 
                     {/* User Info */}
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-[#1C1C1E] flex items-center gap-2">
                         {entry.displayName}
-                        {entry.rank === 1 && <span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded uppercase tracking-wider font-bold">Top Innovator</span>}
+                        {entry.rank === 1 && <span className="text-xs bg-yellow-500/20 text-yellow-700 px-2 py-0.5 rounded uppercase tracking-wider font-bold">Top Innovator</span>}
                       </h3>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-slate-400">
+                      <div className="flex items-center gap-4 mt-1 text-sm text-[#5B5F73]">
                         <span className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-indigo-400" /> 
+                          <Star className="w-3 h-3 text-[#9C7A4C]" />
                           {entry.achievementCount} Achievements
                         </span>
                       </div>
@@ -122,8 +119,8 @@ export default function LeaderboardPage() {
 
                     {/* Level & XP */}
                     <div className="text-right">
-                      <div className="text-2xl font-black text-indigo-400">{entry.xp} <span className="text-sm font-medium text-slate-500">XP</span></div>
-                      <div className="text-sm font-bold text-white bg-slate-800 px-3 py-1 rounded-full inline-block mt-1">
+                      <div className="text-2xl font-black text-[#9C7A4C]">{entry.xp} <span className="text-sm font-medium text-[#5B5F73]">XP</span></div>
+                      <div className="text-sm font-bold text-[#1C1C1E] bg-[#5B5F73]/10 px-3 py-1 rounded-full inline-block mt-1">
                         Level {entry.level}
                       </div>
                     </div>

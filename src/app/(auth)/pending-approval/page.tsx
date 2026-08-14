@@ -12,7 +12,7 @@ export default function PendingApprovalPage() {
     <Card>
       <CardHeader className="space-y-1">
         <div className="flex justify-center mb-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 text-amber-600">
             <Clock className="h-8 w-8" />
           </div>
         </div>
@@ -22,12 +22,12 @@ export default function PendingApprovalPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-lg bg-slate-900 p-4 border border-slate-800">
-          <p className="text-sm text-slate-300">
+        <div className="rounded-lg bg-[#F6F5F2] p-4 border border-[#5B5F73]/30">
+          <p className="text-sm text-[#1C1C1E]">
             As a <strong>{currentUser?.role || "user"}</strong> on SynergyBridge, your account requires manual verification before you can access the platform. 
             This process typically takes 1-2 business days.
           </p>
-          <p className="text-sm text-slate-300 mt-2">
+          <p className="text-sm text-[#1C1C1E] mt-2">
             We will notify you via email at <strong>{currentUser?.email}</strong> once your account has been approved.
           </p>
         </div>

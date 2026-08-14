@@ -7,7 +7,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { Application, ApplicationStatus } from "@/types/application";
 import { Problem } from "@/types/problem";
 import { Button } from "@/components/ui/Button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { FileText, ArrowRight, XCircle } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -31,7 +31,7 @@ export default function StudentApplicationsPage() {
         const appsRef = collection(db, "applications");
         const qApps = query(appsRef, where("applicantId", "==", currentUser.uid));
         const appSnaps = await getDocs(qApps);
-        
+
         const loadedApps: EnrichedApp[] = [];
         for (const d of appSnaps.docs) {
           const app = { id: d.id, ...d.data() } as Application;
@@ -44,8 +44,7 @@ export default function StudentApplicationsPage() {
           }
           loadedApps.push({ app, problem });
         }
-        
-        // Sort newest first
+
         loadedApps.sort((a, b) => b.app.createdAt - a.app.createdAt);
         setApplications(loadedApps);
       } catch (err) {
@@ -72,19 +71,19 @@ export default function StudentApplicationsPage() {
     }
   };
 
-  if (loading) return <div className="text-slate-400">Loading applications...</div>;
+  if (loading) return <div className="text-[#5B5F73]">Loading applications...</div>;
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">My Applications</h1>
-        <p className="text-slate-400">Track your submitted problem solutions.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-2">My Applications</h1>
+        <p className="text-[#5B5F73]">Track your submitted problem solutions.</p>
       </div>
-      
+
       {applications.length === 0 ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center">
-          <FileText className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 mb-4">You have not applied to any problems yet.</p>
+        <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-lg p-8 text-center">
+          <FileText className="w-8 h-8 text-[#5B5F73]/40 mx-auto mb-3" />
+          <p className="text-[#5B5F73] mb-4">You have not applied to any problems yet.</p>
           <Button onClick={() => router.push("/explore/problems")}>
             Explore Problems
           </Button>
@@ -93,20 +92,20 @@ export default function StudentApplicationsPage() {
         <div className="space-y-4">
           {applications.map(({ app, problem }) => {
             const canWithdraw = app.status === ApplicationStatus.SUBMITTED || app.status === ApplicationStatus.UNDER_REVIEW || app.status === ApplicationStatus.SHORTLISTED;
-            
-            let statusColor = "text-slate-400";
-            if (app.status === ApplicationStatus.ACCEPTED) statusColor = "text-emerald-400";
-            if (app.status === ApplicationStatus.REJECTED || app.status === ApplicationStatus.WITHDRAWN) statusColor = "text-red-400";
-            if (app.status === ApplicationStatus.SHORTLISTED) statusColor = "text-blue-400";
+
+            let statusColor = "text-[#5B5F73]";
+            if (app.status === ApplicationStatus.ACCEPTED) statusColor = "text-emerald-600";
+            if (app.status === ApplicationStatus.REJECTED || app.status === ApplicationStatus.WITHDRAWN) statusColor = "text-red-600";
+            if (app.status === ApplicationStatus.SHORTLISTED) statusColor = "text-[#9C7A4C]";
 
             return (
               <Card key={app.id}>
                 <CardContent className="p-6 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
                   <div className="flex-1 space-y-2">
-                    <h3 className="text-lg font-bold text-white">
+                    <h3 className="text-lg font-bold text-[#1C1C1E]">
                       {problem?.title || "Unknown Problem"}
                     </h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-slate-400">
+                    <div className="flex flex-wrap gap-4 text-sm text-[#5B5F73]">
                       <span>Submitted: {new Date(app.createdAt).toLocaleDateString()}</span>
                       <span>Type: {app.teamId ? "Team" : "Individual"}</span>
                       <span>Fit Score: {app.fitScore}%</span>
@@ -115,10 +114,10 @@ export default function StudentApplicationsPage() {
                       Status: {app.status.replace("_", " ")}
                     </p>
                   </div>
-                  
+
                   <div className="flex gap-3 w-full md:w-auto">
                     {canWithdraw && (
-                      <Button variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-950 flex-1 md:flex-none" onClick={() => handleWithdraw(app.id)}>
+                      <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 flex-1 md:flex-none" onClick={() => handleWithdraw(app.id)}>
                         <XCircle className="w-4 h-4 mr-2" /> Withdraw
                       </Button>
                     )}

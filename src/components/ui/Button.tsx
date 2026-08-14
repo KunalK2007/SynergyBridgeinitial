@@ -15,12 +15,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={isLoading || props.disabled}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9C7A4C] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
           {
-            'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 shadow-md shadow-purple-500/25 hover:shadow-purple-500/40': variant === 'default',
-            'border border-slate-700 bg-transparent hover:bg-slate-800/50 text-slate-100': variant === 'outline',
-            'hover:bg-slate-800/50 text-slate-100': variant === 'ghost',
-            'text-purple-400 underline-offset-4 hover:underline': variant === 'link',
+            'bg-[#9C7A4C] text-white hover:bg-[#7A6039] shadow-md shadow-[#9C7A4C]/25 hover:shadow-[#7A6039]/40': variant === 'default',
+            'border border-[#5B5F73] bg-transparent hover:bg-[#F6F5F2] text-[#1C1C1E]': variant === 'outline',
+            'hover:bg-[#EFEDE8] text-[#1C1C1E]': variant === 'ghost',
+            'text-[#9C7A4C] underline-offset-4 hover:underline': variant === 'link',
             'h-10 px-4 py-2': size === 'default',
             'h-9 rounded-md px-3': size === 'sm',
             'h-11 rounded-md px-8': size === 'lg',

@@ -14,7 +14,7 @@ interface FundingTabProps {
 }
 
 export default function FundingTab({ project }: FundingTabProps) {
-  const { currentUser } = useAuth();
+  const { currentUser, getIdToken } = useAuth();
   const [grants, setGrants] = useState<FundingGrant[]>([]);
   const [originalityReport, setOriginalityReport] = useState<OriginalityReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,14 +30,15 @@ export default function FundingTab({ project }: FundingTabProps) {
     // Listen to grants
     const qGrants = query(collection(db, "fundingGrants"), where("projectId", "==", project.id));
     const unsubGrants = onSnapshot(qGrants, (snap) => {
-      setGrants(snap.docs.map(d => d.data() as FundingGrant));
+      setGrants(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as FundingGrant)));
     });
 
-    // Listen to latest originality report
-    const qOriginality = query(collection(db, "originalityReports"), where("projectId", "==", project.id));
-    const unsubOrig = onSnapshot(qOriginality, (snap) => {
-      const reports = snap.docs.map(d => d.data() as OriginalityReport).sort((a, b) => b.version - a.version);
-      if (reports.length > 0) setOriginalityReport(reports[0]);
+    // Listen to originality
+    const qOrig = query(collection(db, "originalityReports"), where("projectId", "==", project.id));
+    const unsubOrig = onSnapshot(qOrig, (snap) => {
+      if (!snap.empty) {
+        setOriginalityReport(snap.docs[0].data() as OriginalityReport);
+      }
     });
 
     return () => {
@@ -48,7 +49,8 @@ export default function FundingTab({ project }: FundingTabProps) {
 
   const handleAssessOriginality = async () => {
     try {
-      const token = await currentUser?.uid /* hack for getIdToken */;
+      const token = await getIdToken();
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch("/api/originality/assess", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -63,7 +65,8 @@ export default function FundingTab({ project }: FundingTabProps) {
 
   const handleRequestFunding = async (tier: "SEED" | "GROWTH" | "INNOVATION", amount: number) => {
     try {
-      const token = await currentUser?.uid /* hack for getIdToken */;
+      const token = await getIdToken();
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch("/api/funding/request", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -81,7 +84,8 @@ export default function FundingTab({ project }: FundingTabProps) {
 
   const handleReviewFunding = async (grantId: string, decision: "APPROVE" | "REJECT") => {
     try {
-      const token = await currentUser?.uid /* hack for getIdToken */;
+      const token = await getIdToken();
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch("/api/funding/review", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -96,7 +100,8 @@ export default function FundingTab({ project }: FundingTabProps) {
 
   const handleDisburse = async (grantId: string, milestoneId: string) => {
     try {
-      const token = await currentUser?.uid /* hack for getIdToken */;
+      const token = await getIdToken();
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch("/api/funding/disburse", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },

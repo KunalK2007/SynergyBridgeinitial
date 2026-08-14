@@ -12,6 +12,7 @@ import { Users, User, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+
 interface ReviewerApp {
   app: Application;
   problemTitle: string;
@@ -32,7 +33,7 @@ export default function ApplicationReviewDashboard() {
       try {
         const pRef = collection(db, "problems");
         let problems: Problem[] = [];
-        
+
         if (currentUser.role === "ADMIN") {
           const pSnaps = await getDocs(pRef);
           problems = pSnaps.docs.map(d => ({ id: d.id, ...d.data() } as Problem));
@@ -49,19 +50,15 @@ export default function ApplicationReviewDashboard() {
 
         const problemIds = problems.map(p => p.id);
         const appsRef = collection(db, "applications");
-        
-        // Firestore 'in' query supports up to 30 elements. For MVP, we chunk or just query all and filter if > 30.
-        // Assuming user has < 30 problems for this demo.
         const qApps = query(appsRef, where("problemId", "in", problemIds.slice(0, 30)));
         const appSnaps = await getDocs(qApps);
-        
+
         const loaded: ReviewerApp[] = appSnaps.docs.map(d => {
           const app = { id: d.id, ...d.data() } as Application;
           const pTitle = problems.find(p => p.id === app.problemId)?.title || "Unknown Problem";
           return { app, problemTitle: pTitle };
         });
 
-        // Sort descending by Fit Score
         loaded.sort((a, b) => (b.app.fitScore || 0) - (a.app.fitScore || 0));
         setApplications(loaded);
       } catch (err) {
@@ -74,26 +71,26 @@ export default function ApplicationReviewDashboard() {
     loadApps();
   }, [currentUser]);
 
-  if (loading) return <div className="text-slate-400">Loading dashboard...</div>;
+  if (loading) return <div className="text-[#5B5F73]">Loading dashboard...</div>;
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Application Review</h1>
-        <p className="text-slate-400">Review applications for your problems.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-2">Application Review</h1>
+        <p className="text-[#5B5F73]">Review applications for your problems.</p>
       </div>
 
       {applications.length === 0 ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center">
-          <p className="text-slate-400 mb-4">No applications received yet.</p>
+        <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-lg p-8 text-center">
+          <p className="text-[#5B5F73] mb-4">No applications received yet.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {applications.map(({ app, problemTitle }) => {
-            let statusColor = "bg-slate-800 text-slate-300";
-            if (app.status === "ACCEPTED") statusColor = "bg-emerald-900/30 text-emerald-400 border border-emerald-800";
-            if (app.status === "REJECTED" || app.status === "WITHDRAWN") statusColor = "bg-red-900/30 text-red-400 border border-red-800";
-            if (app.status === "SHORTLISTED") statusColor = "bg-blue-900/30 text-blue-400 border border-blue-800";
+            let statusColor = "bg-[#5B5F73]/10 text-[#5B5F73]";
+            if (app.status === "ACCEPTED") statusColor = "bg-emerald-100 text-emerald-700 border border-emerald-200";
+            if (app.status === "REJECTED" || app.status === "WITHDRAWN") statusColor = "bg-red-100 text-red-700 border border-red-200";
+            if (app.status === "SHORTLISTED") statusColor = "bg-[#9C7A4C]/10 text-[#9C7A4C] border border-[#9C7A4C]/20";
 
             return (
               <Card key={app.id}>
@@ -104,25 +101,25 @@ export default function ApplicationReviewDashboard() {
                         {app.status}
                       </span>
                       {app.teamId ? (
-                        <span className="flex items-center text-xs text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                        <span className="flex items-center text-xs text-[#9C7A4C] bg-[#9C7A4C]/10 px-2 py-0.5 rounded border border-[#9C7A4C]/20">
                           <Users className="w-3 h-3 mr-1" /> Team
                         </span>
                       ) : (
-                        <span className="flex items-center text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                        <span className="flex items-center text-xs text-[#5B5F73] bg-[#5B5F73]/10 px-2 py-0.5 rounded border border-[#5B5F73]/20">
                           <User className="w-3 h-3 mr-1" /> Individual
                         </span>
                       )}
                     </div>
-                    <h3 className="text-lg font-bold text-white line-clamp-1">{problemTitle}</h3>
-                    <p className="text-sm text-slate-400">
+                    <h3 className="text-lg font-bold text-[#1C1C1E] line-clamp-1">{problemTitle}</h3>
+                    <p className="text-sm text-[#5B5F73]">
                       Applied: {new Date(app.createdAt).toLocaleDateString()}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-6">
                     <div className="text-center">
-                      <div className="text-2xl font-black text-white">{app.fitScore}%</div>
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">SynergyBridge Fit</div>
+                      <div className="text-2xl font-black text-[#1C1C1E]">{app.fitScore}%</div>
+                      <div className="text-[10px] text-[#5B5F73] uppercase tracking-wider font-bold">SynergyBridge Fit</div>
                     </div>
                     <Button onClick={() => router.push(`/dashboard/applications/${app.id}`)}>
                       Review <ArrowRight className="w-4 h-4 ml-2" />

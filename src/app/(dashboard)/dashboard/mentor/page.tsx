@@ -33,7 +33,7 @@ export default function MentorDashboard() {
         setLoading(false);
         return;
       }
-      
+
       try {
         const pSnap = await getDocs(query(collection(db, "mentors"), where("userId", "==", currentUser.uid)));
         if (!pSnap.empty) {
@@ -65,97 +65,100 @@ export default function MentorDashboard() {
     load();
   }, [currentUser, now]);
 
-  if (loading) return <div className="text-slate-400">Loading mentor dashboard...</div>;
+  // Suppress unused import warning
+  void ProjectStatus;
+
+  if (loading) return <div className="text-[#5B5F73]">Loading mentor dashboard...</div>;
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Mentor Dashboard</h1>
-        <p className="text-slate-400">Monitor your assigned projects and student progress.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-2">Mentor Dashboard</h1>
+        <p className="text-[#5B5F73]">Monitor your assigned projects and student progress.</p>
       </div>
 
       <MentorAnalyticsWidget />
 
       {profile && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-slate-900 border-slate-800">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-slate-400 uppercase">Capacity</CardTitle>
+              <CardTitle className="text-sm text-[#5B5F73] uppercase">Capacity</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-white">
-                {profile.currentProjectCount} <span className="text-lg text-slate-500">/ {profile.maxActiveProjects}</span>
+              <div className="text-3xl font-bold text-[#1C1C1E]">
+                {profile.currentProjectCount} <span className="text-lg text-[#5B5F73]">/ {profile.maxActiveProjects}</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">Active Projects</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-slate-400 uppercase">Needs Attention</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-amber-500">
-                {projects.filter(p => p.health.status !== ProjectHealthStatus.ON_TRACK).length}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Projects At Risk or Stalled</p>
+              <p className="text-xs text-[#5B5F73] mt-1">Active Projects</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900 border-slate-800">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-slate-400 uppercase">Status</CardTitle>
+              <CardTitle className="text-sm text-[#5B5F73] uppercase">Needs Attention</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold text-emerald-400">
+              <div className="text-3xl font-bold text-amber-600">
+                {projects.filter(p => p.health.status !== ProjectHealthStatus.ON_TRACK).length}
+              </div>
+              <p className="text-xs text-[#5B5F73] mt-1">Projects At Risk or Stalled</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-[#5B5F73] uppercase">Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold text-emerald-600">
                 {profile.availabilityStatus}
               </div>
-              <p className="text-xs text-slate-500 mt-1">Update in Profile Settings</p>
+              <p className="text-xs text-[#5B5F73] mt-1">Update in Profile Settings</p>
             </CardContent>
           </Card>
         </div>
       )}
 
       <div>
-        <h2 className="text-xl font-bold text-white mb-4">Active Projects</h2>
+        <h2 className="text-xl font-bold text-[#1C1C1E] mb-4">Active Projects</h2>
         <div className="space-y-4">
           {projects.length === 0 ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center">
-              <p className="text-slate-400">You are not currently assigned to any projects.</p>
+            <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-lg p-8 text-center">
+              <p className="text-[#5B5F73]">You are not currently assigned to any projects.</p>
             </div>
           ) : (
             projects.map(({ project, health, progress }) => {
               let HealthIcon = CheckCircle;
-              let healthColor = "text-emerald-400";
+              let healthColor = "text-emerald-600";
               if (health.status === ProjectHealthStatus.AT_RISK) {
                 HealthIcon = AlertTriangle;
-                healthColor = "text-amber-400";
+                healthColor = "text-amber-600";
               } else if (health.status === ProjectHealthStatus.STALLED) {
                 HealthIcon = Clock;
-                healthColor = "text-red-400";
+                healthColor = "text-red-600";
               }
 
               return (
-                <Card key={project.id} className="bg-slate-900 border-slate-800">
+                <Card key={project.id}>
                   <CardContent className="p-4 sm:p-6 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className={`flex items-center text-xs font-bold uppercase ${healthColor}`}>
                           <HealthIcon className="w-3 h-3 mr-1" /> {health.status.replace("_", " ")}
                         </span>
-                        <span className="text-slate-500 text-xs">•</span>
-                        <span className="text-slate-400 text-xs">Last updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
+                        <span className="text-[#5B5F73] text-xs">•</span>
+                        <span className="text-[#5B5F73] text-xs">Last updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
                       </div>
-                      <h3 className="text-lg font-bold text-white">{project.title}</h3>
-                      <p className="text-sm text-slate-400 line-clamp-1">{health.reason}</p>
+                      <h3 className="text-lg font-bold text-[#1C1C1E]">{project.title}</h3>
+                      <p className="text-sm text-[#5B5F73] line-clamp-1">{health.reason}</p>
                     </div>
 
                     <div className="flex items-center gap-6 w-full md:w-auto mt-4 md:mt-0">
                       <div className="text-center w-24">
-                        <div className="text-xl font-black text-white">{progress}%</div>
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Progress</div>
+                        <div className="text-xl font-black text-[#1C1C1E]">{progress}%</div>
+                        <div className="text-[10px] text-[#5B5F73] uppercase tracking-wider font-bold">Progress</div>
                       </div>
-                      <Button  className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700">
+                      <Button className="w-full md:w-auto bg-[#9C7A4C] hover:bg-[#7A6039]">
                         <Link href={`/dashboard/projects/${project.id}`}>
                           Workspace <ArrowRight className="w-4 h-4 ml-2" />
                         </Link>

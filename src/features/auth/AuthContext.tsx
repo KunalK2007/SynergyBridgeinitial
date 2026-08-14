@@ -13,6 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   role: UserRole | null;
   accountStatus: AccountStatus | null;
+  getIdToken: () => Promise<string | null>;
   logout: () => Promise<void>;
 }
 
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   role: null,
   accountStatus: null,
+  getIdToken: async () => null,
   logout: async () => {},
 });
 
@@ -57,6 +59,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
+  const getIdToken = async (): Promise<string | null> => {
+    if (!firebaseUser) return null;
+    return await firebaseUser.getIdToken();
+  };
+
   const logout = async () => {
     await signOut(auth);
   };
@@ -70,6 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isAuthenticated: !!firebaseUser,
         role: currentUser?.role || null,
         accountStatus: currentUser?.accountStatus || null,
+        getIdToken,
         logout,
       }}
     >

@@ -35,10 +35,7 @@ export function StrategicInsightsClient() {
         body: JSON.stringify({ question })
       });
 
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
+      if (!res.ok) throw new Error(await res.text());
       const data: InstitutionalAIResponse = await res.json();
       setResponse(data);
     } catch (err: unknown) {
@@ -69,15 +66,14 @@ export function StrategicInsightsClient() {
               {loading ? "Analyzing..." : "Ask"}
             </Button>
           </form>
-          
-          <div className="mt-2 text-sm text-gray-500">
+          <div className="mt-2 text-sm text-[#5B5F73]">
             SynergyBridge AI analyzes your deterministic platform data to provide strategic insights.
           </div>
         </CardContent>
       </Card>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 rounded-md">
+        <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-200">
           {error}
         </div>
       )}
@@ -85,16 +81,16 @@ export function StrategicInsightsClient() {
       {response && (
         <div className="space-y-6">
           {response.groundingStatus === "INSUFFICIENT_DATA" && (
-            <div className="p-4 bg-yellow-50 text-yellow-800 rounded-md border border-yellow-200">
+            <div className="p-4 bg-amber-50 text-amber-800 rounded-md border border-amber-200">
               <h4 className="font-semibold">Insufficient Data</h4>
               <p>The available analytics are insufficient to answer this question reliably. This may be due to cohort sizes being below the privacy threshold.</p>
             </div>
           )}
-          
+
           {response.limitations.length > 0 && (
-            <div className="p-4 bg-blue-50 text-blue-800 rounded-md border border-blue-200 text-sm">
-              <h4 className="font-semibold mb-1">Data Limitations</h4>
-              <ul className="list-disc pl-5">
+            <div className="p-4 bg-[#9C7A4C]/5 text-[#1C1C1E] rounded-md border border-[#9C7A4C]/20 text-sm">
+              <h4 className="font-semibold mb-1 text-[#9C7A4C]">Data Limitations</h4>
+              <ul className="list-disc pl-5 text-[#5B5F73]">
                 {response.limitations.map((limit, i) => (
                   <li key={i}>{limit}</li>
                 ))}
@@ -102,35 +98,35 @@ export function StrategicInsightsClient() {
             </div>
           )}
 
-          <Card className="bg-white">
+          <Card>
             <CardHeader>
               <CardTitle>AI Strategic Brief</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-gray-800 leading-relaxed">
+              <div className="text-[#1C1C1E] leading-relaxed">
                 {response.answer}
               </div>
-              
+
               {response.insights.length > 0 && (
                 <div className="mt-6 space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Key Insights</h3>
+                  <h3 className="text-lg font-semibold border-b border-[#5B5F73]/20 pb-2 text-[#1C1C1E]">Key Insights</h3>
                   {response.insights.map((insight, idx) => (
-                    <div key={idx} className="p-4 border rounded-md bg-gray-50 space-y-2">
-                      <h4 className="font-semibold text-indigo-700">{insight.title}</h4>
-                      
+                    <div key={idx} className="p-4 border border-[#5B5F73]/20 rounded-md bg-[#F6F5F2] space-y-2">
+                      <h4 className="font-semibold text-[#9C7A4C]">{insight.title}</h4>
+
                       <div>
-                        <span className="text-xs font-bold uppercase text-gray-500 mr-2">Observation / Evidence:</span>
-                        <span className="text-sm text-gray-700">{insight.evidence}</span>
+                        <span className="text-xs font-bold uppercase text-[#5B5F73] mr-2">Observation / Evidence:</span>
+                        <span className="text-sm text-[#1C1C1E]">{insight.evidence}</span>
                       </div>
-                      
+
                       <div>
-                        <span className="text-xs font-bold uppercase text-gray-500 mr-2">Interpretation:</span>
-                        <span className="text-sm text-gray-700">{insight.explanation}</span>
+                        <span className="text-xs font-bold uppercase text-[#5B5F73] mr-2">Interpretation:</span>
+                        <span className="text-sm text-[#1C1C1E]">{insight.explanation}</span>
                       </div>
-                      
-                      <div className="pt-2 border-t mt-2">
-                        <span className="text-xs font-bold uppercase text-green-700 mr-2">Recommendation:</span>
-                        <span className="text-sm text-gray-800">{insight.recommendedAction}</span>
+
+                      <div className="pt-2 border-t border-[#5B5F73]/15 mt-2">
+                        <span className="text-xs font-bold uppercase text-emerald-600 mr-2">Recommendation:</span>
+                        <span className="text-sm text-[#1C1C1E]">{insight.recommendedAction}</span>
                       </div>
                     </div>
                   ))}

@@ -22,7 +22,6 @@ import { normalizeStudentProfile } from "@/lib/utils/profile-helpers";
 const profileSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters"),
   showOnLeaderboard: z.boolean().optional(),
-  // Note: Further fields like skills, org, etc., can be added based on role in later phases
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -50,12 +49,11 @@ export default function ProfilePage() {
           if (snap.exists()) {
             setStudentData(normalizeStudentProfile(snap.data()));
           } else {
-            setStudentData({}); // Empty to trigger form
+            setStudentData({});
           }
         })
         .finally(() => setFetchingStudent(false));
-        
-      // Fetch gamification profile for settings
+
       getDoc(doc(db, "gamificationProfiles", currentUser.uid)).then(snap => {
         if (snap.exists()) {
           setValue("showOnLeaderboard", snap.data().showOnLeaderboard ?? true);
@@ -68,10 +66,8 @@ export default function ProfilePage() {
     if (!currentUser || !firebaseUser) return;
     setIsLoading(true);
     try {
-      // Update Firebase Auth profile
       await updateProfile(firebaseUser, { displayName: data.displayName });
-      
-      // Update Firestore user document
+
       // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
       const userRef = doc(db, "users", currentUser.uid);
@@ -80,7 +76,6 @@ export default function ProfilePage() {
         updatedAt: now,
       });
 
-      // Update gamification privacy setting if student
       if (currentUser.role === UserRole.STUDENT) {
         const gamificationRef = doc(db, "gamificationProfiles", currentUser.uid);
         const gamificationSnap = await getDoc(gamificationRef);
@@ -103,8 +98,8 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Profile</h1>
-        <p className="text-slate-400">Manage your personal information and preferences.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-2">Profile</h1>
+        <p className="text-[#5B5F73]">Manage your personal information and preferences.</p>
       </div>
 
       <Card>
@@ -115,42 +110,42 @@ export default function ProfilePage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">Email Address</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Email Address</label>
               <Input
                 type="email"
                 value={currentUser?.email || ""}
                 disabled
-                className="bg-slate-800/50 cursor-not-allowed text-slate-400"
+                className="bg-[#5B5F73]/10 cursor-not-allowed text-[#5B5F73]"
               />
-              <p className="text-xs text-slate-500">Your email cannot be changed at this time.</p>
+              <p className="text-xs text-[#5B5F73]">Your email cannot be changed at this time.</p>
             </div>
-            
+
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">Display Name</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Display Name</label>
               <Input
                 {...register("displayName")}
                 error={errors.displayName?.message}
               />
             </div>
-            
+
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none">Role</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Role</label>
               <Input
                 value={currentUser?.role || ""}
                 disabled
-                className="bg-slate-800/50 cursor-not-allowed text-slate-400 capitalize"
+                className="bg-[#5B5F73]/10 cursor-not-allowed text-[#5B5F73] capitalize"
               />
             </div>
-            
+
             {currentUser?.role === UserRole.STUDENT && (
               <div className="flex items-center space-x-2 pt-2">
                 <input
                   type="checkbox"
                   id="showOnLeaderboard"
                   {...register("showOnLeaderboard")}
-                  className="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-indigo-500 w-4 h-4"
+                  className="rounded border-[#5B5F73] bg-[#F6F5F2] text-[#9C7A4C] focus:ring-[#9C7A4C] w-4 h-4"
                 />
-                <label htmlFor="showOnLeaderboard" className="text-sm font-medium leading-none text-slate-300">
+                <label htmlFor="showOnLeaderboard" className="text-sm font-medium leading-none text-[#1C1C1E]">
                   Show my profile on public leaderboards
                 </label>
               </div>
@@ -164,10 +159,10 @@ export default function ProfilePage() {
       </Card>
 
       {currentUser?.role === UserRole.STUDENT && (
-        <div className="pt-8 border-t border-slate-800">
-          <h2 className="text-2xl font-bold text-white mb-6">Capability Profile</h2>
+        <div className="pt-8 border-t border-[#5B5F73]/20">
+          <h2 className="text-2xl font-bold text-[#1C1C1E] mb-6">Capability Profile</h2>
           {fetchingStudent ? (
-            <div className="text-slate-400">Loading your profile data...</div>
+            <div className="text-[#5B5F73]">Loading your profile data...</div>
           ) : (
             studentData && <StudentOnboardingForm initialData={studentData} isEditMode={true} />
           )}

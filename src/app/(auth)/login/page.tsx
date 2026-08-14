@@ -50,7 +50,7 @@ export default function LoginPage() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
+            <label className="text-sm font-medium leading-none text-[#1C1C1E] peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
             <Input
               type="email"
               placeholder="m@example.com"
@@ -60,8 +60,8 @@ export default function LoginPage() {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
-              <Link href="/forgot-password" className="text-sm text-blue-500 hover:underline">
+              <label className="text-sm font-medium leading-none text-[#1C1C1E] peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
+              <Link href="/forgot-password" className="text-sm text-[#9C7A4C] hover:text-[#7A6039] hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -77,9 +77,9 @@ export default function LoginPage() {
         </form>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <div className="text-sm text-slate-400">
+        <div className="text-sm text-[#5B5F73]">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-blue-500 hover:underline">
+          <Link href="/signup" className="text-[#9C7A4C] hover:text-[#7A6039] hover:underline">
             Sign up
           </Link>
         </div>
