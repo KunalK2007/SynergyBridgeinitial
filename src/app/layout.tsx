@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/AuthContext";
+import { ThemeInitializer } from "@/components/layout/ThemeInitializer";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -17,9 +18,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-slate-950 text-slate-50 min-h-screen antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var storageKey = "synergybridge_user_settings";
+                  var stored = localStorage.getItem(storageKey);
+                  var theme = "system";
+                  if (stored) {
+                    var parsed = JSON.parse(stored);
+                    if (parsed.theme) theme = parsed.theme;
+                  }
+                  var isDark = theme === "dark" || (theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+                  if (isDark) {
+                    document.documentElement.classList.add("dark");
+                    document.documentElement.setAttribute("data-theme", "dark");
+                  } else {
+                    document.documentElement.classList.remove("dark");
+                    document.documentElement.setAttribute("data-theme", "light");
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.className} min-h-screen antialiased bg-[#F6F5F2] dark:bg-[#0B0D14] text-[#1C1C1E] dark:text-[#F3F4F6]`}>
         <AuthProvider>
+          <ThemeInitializer />
           {children}
           <Toaster 
             position="top-right"

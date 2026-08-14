@@ -60,10 +60,10 @@ export default function ProblemsDashboardPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-1">
+          <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] dark:text-[#F3F4F6] mb-1">
             {isStudent ? "My Problem Proposals" : "My Challenges"}
           </h1>
-          <p className="text-[#5B5F73]">
+          <p className="text-[#5B5F73] dark:text-[#9499AD]">
             {isStudent
               ? "Manage problem proposals and suggestions submitted for review."
               : "Manage your drafted and published challenges in the repository."}
@@ -78,7 +78,7 @@ export default function ProblemsDashboardPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-[#5B5F73]/20 pb-2">
+      <div className="flex gap-2 border-b border-[#5B5F73]/20 dark:border-[#252A3D] pb-2 overflow-x-auto">
         {[
           { id: "ALL", label: `All (${problems.length})` },
           { id: "PUBLISHED", label: `Published (${problems.filter(p => p.status === ProblemStatus.PUBLISHED).length})` },
@@ -90,8 +90,8 @@ export default function ProblemsDashboardPage() {
             onClick={() => setActiveTab(tab.id as any)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? "bg-[#1C1C1E] text-white"
-                : "text-[#5B5F73] hover:text-[#1C1C1E] hover:bg-[#EFEDE8]"
+                ? "bg-[#1C1C1E] dark:bg-[#9C7A4C] text-white shadow-xs"
+                : "text-[#5B5F73] dark:text-[#9499AD] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E]"
             }`}
           >
             {tab.label}
@@ -101,8 +101,8 @@ export default function ProblemsDashboardPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="py-16 text-center text-[#5B5F73]">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-[#9C7A4C]" />
+        <div className="py-16 text-center text-[#5B5F73] dark:text-[#9499AD]">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-[#9C7A4C] dark:text-[#C4A880]" />
           <p>Loading your challenges...</p>
         </div>
       ) : filteredProblems.length > 0 ? (
@@ -114,20 +114,20 @@ export default function ProblemsDashboardPage() {
             return (
               <div
                 key={problem.id}
-                className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-xl p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
+                className="bg-[#EFEDE8] dark:bg-[#131722] border border-[#5B5F73]/20 dark:border-[#252A3D] rounded-xl p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
               >
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-3">
-                    <span className="px-2 py-0.5 bg-[#9C7A4C]/10 text-[#9C7A4C] text-xs font-semibold rounded uppercase tracking-wider">
+                    <span className="px-2 py-0.5 bg-[#9C7A4C]/10 dark:bg-[#9C7A4C]/20 text-[#9C7A4C] dark:text-[#C4A880] text-xs font-semibold rounded uppercase tracking-wider">
                       {problem.domain}
                     </span>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                         isPublished
-                          ? "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20"
+                          ? "bg-emerald-500/10 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-800"
                           : isPendingReview
-                          ? "bg-blue-500/10 text-blue-700 border border-blue-500/20"
-                          : "bg-amber-500/10 text-amber-700 border border-amber-500/20"
+                          ? "bg-blue-500/10 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-500/20 dark:border-blue-800"
+                          : "bg-amber-500/10 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-500/20 dark:border-amber-800"
                       }`}
                     >
                       {isPublished
@@ -138,16 +138,16 @@ export default function ProblemsDashboardPage() {
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-lg text-[#1C1C1E] mb-2 line-clamp-1">
+                  <h3 className="font-bold text-lg text-[#1C1C1E] dark:text-[#F3F4F6] mb-2 line-clamp-1">
                     {problem.title || "Untitled Challenge"}
                   </h3>
-                  <p className="text-sm text-[#5B5F73] line-clamp-2 mb-4">
+                  <p className="text-sm text-[#5B5F73] dark:text-[#9499AD] line-clamp-2 mb-4">
                     {problem.shortDescription || problem.problemStatement || "No description provided."}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-[#5B5F73]/10">
-                  <span className="text-xs text-[#5B5F73] flex items-center gap-1">
+                <div className="flex items-center justify-between pt-4 border-t border-[#5B5F73]/10 dark:border-[#252A3D]">
+                  <span className="text-xs text-[#5B5F73] dark:text-[#9499AD] flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
                     {new Date(problem.updatedAt || problem.createdAt).toLocaleDateString()}
                   </span>
@@ -182,12 +182,12 @@ export default function ProblemsDashboardPage() {
           })}
         </div>
       ) : (
-        <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-xl p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#9C7A4C]/10 flex items-center justify-center mx-auto mb-3 text-[#9C7A4C]">
+        <div className="bg-[#EFEDE8] dark:bg-[#131722] border border-[#5B5F73]/20 dark:border-[#252A3D] rounded-xl p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#9C7A4C]/10 dark:bg-[#9C7A4C]/20 flex items-center justify-center mx-auto mb-3 text-[#9C7A4C] dark:text-[#C4A880]">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-medium text-[#1C1C1E] mb-1">No challenges in this view</h3>
-          <p className="text-[#5B5F73] mb-6 text-sm">
+          <h3 className="text-lg font-medium text-[#1C1C1E] dark:text-[#F3F4F6] mb-1">No challenges in this view</h3>
+          <p className="text-[#5B5F73] dark:text-[#9499AD] mb-6 text-sm">
             {isStudent
               ? "You haven't submitted any problem proposals yet."
               : "Get started by posting a real-world problem for student innovator teams."}

@@ -293,8 +293,8 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto py-16 text-center text-[#5B5F73]">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[#9C7A4C]" />
+      <div className="max-w-4xl mx-auto py-16 text-center text-[#5B5F73] dark:text-[#9499AD]">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[#9C7A4C] dark:text-[#C4A880]" />
         <p className="text-sm font-medium">Loading your settings...</p>
       </div>
     );
@@ -303,20 +303,20 @@ export default function SettingsPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-16">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-2">Settings</h1>
-        <p className="text-[#5B5F73]">
+        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] dark:text-[#F3F4F6] mb-2">Settings</h1>
+        <p className="text-[#5B5F73] dark:text-[#9499AD]">
           Manage your personal account, security preferences, notifications, and application experience.
         </p>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-2 border-b border-[#9C7A4C]/20 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-[#9C7A4C]/20 dark:border-[#252A3D] pb-4">
         <button
           onClick={() => setActiveTab("account")}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
             activeTab === "account"
               ? "bg-[#9C7A4C] text-white shadow-sm"
-              : "text-[#5B5F73] hover:bg-[#EFEDE8] hover:text-[#1C1C1E]"
+              : "text-[#5B5F73] dark:text-[#9499AD] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
           }`}
         >
           <UserIcon className="w-4 h-4" /> Account
@@ -327,7 +327,7 @@ export default function SettingsPage() {
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
             activeTab === "security"
               ? "bg-[#9C7A4C] text-white shadow-sm"
-              : "text-[#5B5F73] hover:bg-[#EFEDE8] hover:text-[#1C1C1E]"
+              : "text-[#5B5F73] dark:text-[#9499AD] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
           }`}
         >
           <Shield className="w-4 h-4" /> Security
@@ -338,7 +338,7 @@ export default function SettingsPage() {
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
             activeTab === "notifications"
               ? "bg-[#9C7A4C] text-white shadow-sm"
-              : "text-[#5B5F73] hover:bg-[#EFEDE8] hover:text-[#1C1C1E]"
+              : "text-[#5B5F73] dark:text-[#9499AD] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
           }`}
         >
           <Bell className="w-4 h-4" /> Notifications
@@ -349,7 +349,7 @@ export default function SettingsPage() {
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
             activeTab === "appearance"
               ? "bg-[#9C7A4C] text-white shadow-sm"
-              : "text-[#5B5F73] hover:bg-[#EFEDE8] hover:text-[#1C1C1E]"
+              : "text-[#5B5F73] dark:text-[#9499AD] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
           }`}
         >
           <SunMoon className="w-4 h-4" /> Appearance
@@ -360,7 +360,7 @@ export default function SettingsPage() {
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
             activeTab === "privacy"
               ? "bg-[#9C7A4C] text-white shadow-sm"
-              : "text-[#5B5F73] hover:bg-[#EFEDE8] hover:text-[#1C1C1E]"
+              : "text-[#5B5F73] dark:text-[#9499AD] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
           }`}
         >
           <Lock className="w-4 h-4" /> Privacy
@@ -371,7 +371,7 @@ export default function SettingsPage() {
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
             activeTab === "application"
               ? "bg-[#9C7A4C] text-white shadow-sm"
-              : "text-[#5B5F73] hover:bg-[#EFEDE8] hover:text-[#1C1C1E]"
+              : "text-[#5B5F73] dark:text-[#9499AD] hover:bg-[#EFEDE8] dark:hover:bg-[#1A1E2E] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
           }`}
         >
           <Sliders className="w-4 h-4" /> Application
@@ -383,7 +383,7 @@ export default function SettingsPage() {
         <div className="space-y-6">
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-[#1C1C1E]">Profile Information</CardTitle>
+              <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Profile Information</CardTitle>
               <CardDescription>
                 Update your public name, contact information, and biography across SynergyBridge.
               </CardDescription>
@@ -391,7 +391,7 @@ export default function SettingsPage() {
             <CardContent>
               <form onSubmit={handleSaveProfile} className="space-y-4 max-w-xl">
                 <div>
-                  <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1">
                     Display Name
                   </label>
                   <input
@@ -399,33 +399,33 @@ export default function SettingsPage() {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                    className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                     placeholder="Your Full Name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1">
                     Bio / Headline
                   </label>
                   <textarea
                     rows={3}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                    className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                     placeholder="e.g. AI Researcher & Agriculture Innovator passionate about edge computer vision."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1">
                     Phone Number (Optional)
                   </label>
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                    className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                     placeholder="+91 98765 43210"
                   />
                 </div>
@@ -448,10 +448,10 @@ export default function SettingsPage() {
           </Card>
 
           {/* Protected System Attributes Card */}
-          <Card className="border-[#9C7A4C]/20 bg-[#EFEDE8]/50 shadow-sm">
+          <Card className="border-[#9C7A4C]/20 bg-[#EFEDE8]/50 dark:bg-[#131722]/80 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base text-[#1C1C1E] flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#9C7A4C]" /> System-Enforced Attributes (Protected)
+              <CardTitle className="text-base text-[#1C1C1E] dark:text-[#F3F4F6] flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" /> System-Enforced Attributes (Protected)
               </CardTitle>
               <CardDescription>
                 These authoritative attributes are governed by institutional enrollment and platform RBAC rules.
@@ -459,36 +459,36 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                <div className="p-3 bg-white rounded-lg border border-[#9C7A4C]/20">
-                  <span className="text-xs text-[#5B5F73] font-semibold uppercase">User Role</span>
-                  <div className="font-bold text-[#1C1C1E] mt-0.5">{currentUser?.role || "STUDENT"}</div>
+                <div className="p-3 bg-white dark:bg-[#1A1E2E] rounded-lg border border-[#9C7A4C]/20 dark:border-[#252A3D]">
+                  <span className="text-xs text-[#5B5F73] dark:text-[#9499AD] font-semibold uppercase">User Role</span>
+                  <div className="font-bold text-[#1C1C1E] dark:text-[#F3F4F6] mt-0.5">{currentUser?.role || "STUDENT"}</div>
                 </div>
 
-                <div className="p-3 bg-white rounded-lg border border-[#9C7A4C]/20">
-                  <span className="text-xs text-[#5B5F73] font-semibold uppercase">Account Status</span>
-                  <div className="font-bold text-emerald-700 mt-0.5 flex items-center gap-1">
+                <div className="p-3 bg-white dark:bg-[#1A1E2E] rounded-lg border border-[#9C7A4C]/20 dark:border-[#252A3D]">
+                  <span className="text-xs text-[#5B5F73] dark:text-[#9499AD] font-semibold uppercase">Account Status</span>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> {currentUser?.accountStatus || "ACTIVE"}
                   </div>
                 </div>
 
-                <div className="p-3 bg-white rounded-lg border border-[#9C7A4C]/20">
-                  <span className="text-xs text-[#5B5F73] font-semibold uppercase">Institution ID</span>
-                  <div className="font-bold text-[#1C1C1E] mt-0.5 truncate" title={currentUser?.institutionId}>
+                <div className="p-3 bg-white dark:bg-[#1A1E2E] rounded-lg border border-[#9C7A4C]/20 dark:border-[#252A3D]">
+                  <span className="text-xs text-[#5B5F73] dark:text-[#9499AD] font-semibold uppercase">Institution ID</span>
+                  <div className="font-bold text-[#1C1C1E] dark:text-[#F3F4F6] mt-0.5 truncate" title={currentUser?.institutionId}>
                     {currentUser?.institutionId || "synergybridge-demo-institute"}
                   </div>
                 </div>
 
-                <div className="p-3 bg-white rounded-lg border border-[#9C7A4C]/20 sm:col-span-2 md:col-span-3 flex items-center justify-between">
+                <div className="p-3 bg-white dark:bg-[#1A1E2E] rounded-lg border border-[#9C7A4C]/20 dark:border-[#252A3D] sm:col-span-2 md:col-span-3 flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-[#5B5F73] font-semibold uppercase">Authenticated UID</span>
-                    <div className="font-mono text-xs text-[#1C1C1E] mt-0.5">{currentUser?.uid}</div>
+                    <span className="text-xs text-[#5B5F73] dark:text-[#9499AD] font-semibold uppercase">Authenticated UID</span>
+                    <div className="font-mono text-xs text-[#1C1C1E] dark:text-[#F3F4F6] mt-0.5">{currentUser?.uid}</div>
                   </div>
                   <button
                     onClick={copyUidToClipboard}
-                    className="p-2 text-[#5B5F73] hover:text-[#1C1C1E] hover:bg-[#EFEDE8] rounded-md transition-colors"
+                    className="p-2 text-[#5B5F73] dark:text-[#9499AD] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6] hover:bg-[#EFEDE8] dark:hover:bg-[#161926] rounded-md transition-colors"
                     title="Copy UID"
                   >
-                    {copiedUid ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                    {copiedUid ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -503,7 +503,7 @@ export default function SettingsPage() {
           {/* Change Password Card */}
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-[#1C1C1E]">Password & Authentication</CardTitle>
+              <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Password & Authentication</CardTitle>
               <CardDescription>
                 Ensure your SynergyBridge account is protected with a secure password.
               </CardDescription>
@@ -512,21 +512,21 @@ export default function SettingsPage() {
               {isPasswordProvider ? (
                 <form onSubmit={handleChangePassword} className="space-y-4 max-w-xl">
                   {passwordError && (
-                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-2">
+                    <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                       <span>{passwordError}</span>
                     </div>
                   )}
 
                   {passwordSuccess && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-sm flex items-center gap-2">
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 rounded-lg text-sm flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>{passwordSuccess}</span>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1">
                       Current Password
                     </label>
                     <div className="relative">
@@ -535,13 +535,13 @@ export default function SettingsPage() {
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         required
-                        className="w-full px-3 py-2 pr-10 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                        className="w-full px-3 py-2 pr-10 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                         placeholder="••••••••••••"
                       />
                       <button
                         type="button"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B5F73] hover:text-[#1C1C1E]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B5F73] dark:text-[#9499AD] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
                       >
                         {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -549,7 +549,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1">
                       New Password (min. 8 characters)
                     </label>
                     <div className="relative">
@@ -558,13 +558,13 @@ export default function SettingsPage() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
-                        className="w-full px-3 py-2 pr-10 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                        className="w-full px-3 py-2 pr-10 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                         placeholder="••••••••••••"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B5F73] hover:text-[#1C1C1E]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B5F73] dark:text-[#9499AD] hover:text-[#1C1C1E] dark:hover:text-[#F3F4F6]"
                       >
                         {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -572,7 +572,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1">
                       Confirm New Password
                     </label>
                     <input
@@ -580,7 +580,7 @@ export default function SettingsPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                      className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                       placeholder="••••••••••••"
                     />
                   </div>
@@ -600,11 +600,11 @@ export default function SettingsPage() {
                   </Button>
                 </form>
               ) : (
-                <div className="p-4 bg-[#EFEDE8] rounded-lg border border-[#5B5F73]/20">
-                  <p className="text-sm text-[#1C1C1E] font-medium">
+                <div className="p-4 bg-[#EFEDE8] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/20 dark:border-[#252A3D]">
+                  <p className="text-sm text-[#1C1C1E] dark:text-[#F3F4F6] font-medium">
                     You signed in using a federated social provider (e.g. Google OAuth).
                   </p>
-                  <p className="text-xs text-[#5B5F73] mt-1">
+                  <p className="text-xs text-[#5B5F73] dark:text-[#9499AD] mt-1">
                     Password management is handled directly through your provider&apos;s security center.
                   </p>
                 </div>
@@ -615,29 +615,29 @@ export default function SettingsPage() {
           {/* Active Session Info Card */}
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-[#1C1C1E]">Active Session Information</CardTitle>
+              <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Active Session Information</CardTitle>
               <CardDescription>
                 Details of your authenticated session on this browser.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between py-2 border-b border-[#9C7A4C]/10">
-                  <span className="text-[#5B5F73]">Signed-in Email</span>
-                  <span className="font-semibold text-[#1C1C1E]">{firebaseUser?.email}</span>
+                <div className="flex justify-between py-2 border-b border-[#9C7A4C]/10 dark:border-[#252A3D]">
+                  <span className="text-[#5B5F73] dark:text-[#9499AD]">Signed-in Email</span>
+                  <span className="font-semibold text-[#1C1C1E] dark:text-[#F3F4F6]">{firebaseUser?.email}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-[#9C7A4C]/10">
-                  <span className="text-[#5B5F73]">Authentication Method</span>
-                  <span className="font-semibold text-[#1C1C1E] uppercase">{firebaseUser?.providerData[0]?.providerId || "password"}</span>
+                <div className="flex justify-between py-2 border-b border-[#9C7A4C]/10 dark:border-[#252A3D]">
+                  <span className="text-[#5B5F73] dark:text-[#9499AD]">Authentication Method</span>
+                  <span className="font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase">{firebaseUser?.providerData[0]?.providerId || "password"}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-[#9C7A4C]/10">
-                  <span className="text-[#5B5F73]">Email Verified</span>
-                  <span className="font-semibold text-emerald-700">{firebaseUser?.emailVerified ? "Yes" : "Verified via Demo"}</span>
+                <div className="flex justify-between py-2 border-b border-[#9C7A4C]/10 dark:border-[#252A3D]">
+                  <span className="text-[#5B5F73] dark:text-[#9499AD]">Email Verified</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">{firebaseUser?.emailVerified ? "Yes" : "Verified via Demo"}</span>
                 </div>
                 <div className="flex justify-between py-2">
-                  <span className="text-[#5B5F73]">Session Status</span>
-                  <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-1.5" /> Active
+                  <span className="text-[#5B5F73] dark:text-[#9499AD]">Session Status</span>
+                  <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 mr-1.5" /> Active
                   </span>
                 </div>
               </div>
@@ -645,9 +645,9 @@ export default function SettingsPage() {
           </Card>
 
           {/* Sign Out Card */}
-          <Card className="border-red-200 bg-red-50/20 shadow-sm">
+          <Card className="border-red-200 dark:border-red-900/60 bg-red-50/20 dark:bg-red-950/20 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-red-700">Account Session Management</CardTitle>
+              <CardTitle className="text-xl text-red-600 dark:text-red-400">Account Session Management</CardTitle>
               <CardDescription>
                 Sign out of your active session on this device.
               </CardDescription>
@@ -670,7 +670,7 @@ export default function SettingsPage() {
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-[#1C1C1E]">Notification Preferences</CardTitle>
+                <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Notification Preferences</CardTitle>
                 <CardDescription>
                   Choose the activity updates you want to receive across project workspaces.
                 </CardDescription>
@@ -686,12 +686,12 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-sm font-bold text-[#1C1C1E] uppercase tracking-wider">Project & Collaboration</h3>
+                <h3 className="text-sm font-bold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider">Project & Collaboration</h3>
                 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Project Milestone Updates</div>
-                    <div className="text-xs text-[#5B5F73]">Alerts when milestones are reached, approved, or rescheduled.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Project Milestone Updates</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Alerts when milestones are reached, approved, or rescheduled.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -701,36 +701,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Task Assignments & Kanban Moves</div>
-                    <div className="text-xs text-[#5B5F73]">Notifications when a teammate assigns or moves tasks you own.</div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.notifications.taskAssignments}
-                    onChange={() => toggleNotification("taskAssignments")}
-                    className="w-4 h-4 accent-[#9C7A4C] cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
-                  <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Upcoming Deadlines & Reminders</div>
-                    <div className="text-xs text-[#5B5F73]">Reminders 48 hours before milestone and evaluation targets.</div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.notifications.deadlines}
-                    onChange={() => toggleNotification("deadlines")}
-                    className="w-4 h-4 accent-[#9C7A4C] cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
-                  <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Chat & Workspace Messages</div>
-                    <div className="text-xs text-[#5B5F73]">Direct mentions and team messages in your project workspace.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Workspace Team Messages</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Real-time chat alerts and task assignment notifications.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -740,10 +714,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Mentor Guidance & Reviews</div>
-                    <div className="text-xs text-[#5B5F73]">Feedback, advice, and session requests from assigned mentors.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Mentor Feedback & Guidance</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Feedback alerts from assigned industry & faculty mentors.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -755,12 +729,12 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-sm font-bold text-[#1C1C1E] uppercase tracking-wider">Opportunities & Impact</h3>
+                <h3 className="text-sm font-bold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider">Opportunities & Impact</h3>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Problem Application Status</div>
-                    <div className="text-xs text-[#5B5F73]">Shortlists, approvals, and team invitations for challenge problems.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Problem Application Status</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Shortlists, approvals, and team invitations for challenge problems.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -770,10 +744,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Milestone Grant & Funding Alerts</div>
-                    <div className="text-xs text-[#5B5F73]">Notifications regarding tranche approvals and grant disbursements.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Milestone Grant & Funding Alerts</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Notifications regarding tranche approvals and grant disbursements.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -783,10 +757,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Certificate Issuance & Credentials</div>
-                    <div className="text-xs text-[#5B5F73]">Alerts when completion certificates and ABC credits are published.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Certificate Issuance & Credentials</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Alerts when completion certificates and ABC credits are published.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -796,10 +770,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Achievements & Streak Celebrations</div>
-                    <div className="text-xs text-[#5B5F73]">XP rewards, level-ups, and leaderboard progression milestones.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Achievements & Streak Celebrations</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">XP rewards, level-ups, and leaderboard progression milestones.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -811,15 +785,15 @@ export default function SettingsPage() {
               </div>
 
               {/* Delivery Channels */}
-              <div className="space-y-4 pt-4 border-t border-[#9C7A4C]/10">
-                <h3 className="text-sm font-bold text-[#1C1C1E] uppercase tracking-wider">Delivery Channels</h3>
+              <div className="space-y-4 pt-4 border-t border-[#9C7A4C]/10 dark:border-[#252A3D]">
+                <h3 className="text-sm font-bold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider">Delivery Channels</h3>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722]">
                   <div className="flex items-center gap-3">
-                    <Smartphone className="w-5 h-5 text-[#9C7A4C]" />
+                    <Smartphone className="w-5 h-5 text-[#9C7A4C] dark:text-[#C4A880]" />
                     <div>
-                      <div className="font-semibold text-sm text-[#1C1C1E]">In-App Notifications</div>
-                      <div className="text-xs text-[#5B5F73]">Real-time toasts and notification bell feed in header.</div>
+                      <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">In-App Notifications</div>
+                      <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Real-time toasts and notification bell feed in header.</div>
                     </div>
                   </div>
                   <input
@@ -830,12 +804,12 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722]">
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-[#9C7A4C]" />
+                    <Mail className="w-5 h-5 text-[#9C7A4C] dark:text-[#C4A880]" />
                     <div>
-                      <div className="font-semibold text-sm text-[#1C1C1E]">Email Notification Digests</div>
-                      <div className="text-xs text-[#5B5F73]">Weekly summary digest sent to your registered email.</div>
+                      <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Email Notification Digests</div>
+                      <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Weekly summary digest sent to your registered email.</div>
                     </div>
                   </div>
                   <input
@@ -857,7 +831,7 @@ export default function SettingsPage() {
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-[#1C1C1E]">Theme & Visual Style</CardTitle>
+                <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Theme & Visual Style</CardTitle>
                 <CardDescription>
                   Customize the interface theme to suit your viewing preference.
                 </CardDescription>
@@ -865,7 +839,7 @@ export default function SettingsPage() {
               <Button
                 onClick={handleSaveSettings}
                 disabled={savingSettings}
-                className="bg-[#9C7A4C] hover:bg-[#7A6039] text-white"
+                className="bg-[#9C7A4C] hover:bg-[#7A6039] text-white shadow-xs"
               >
                 {savingSettings ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
                 Save Appearance
@@ -873,7 +847,7 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-3">
+                <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-3">
                   Color Theme
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl">
@@ -882,16 +856,16 @@ export default function SettingsPage() {
                     onClick={() => updateSettingState("theme", "system")}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       settings.theme === "system"
-                        ? "border-[#9C7A4C] ring-2 ring-[#9C7A4C]/30 bg-[#EFEDE8]/50"
-                        : "border-[#5B5F73]/20 hover:border-[#9C7A4C]/40 bg-white"
+                        ? "border-[#9C7A4C] ring-2 ring-[#9C7A4C]/30 bg-[#EFEDE8]/50 dark:bg-[#1A1E2E] dark:border-[#C4A880] shadow-xs"
+                        : "border-[#5B5F73]/20 hover:border-[#9C7A4C]/40 bg-white dark:bg-[#141722] dark:border-[#252A3D]"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <Sparkles className="w-5 h-5 text-[#9C7A4C]" />
-                      {settings.theme === "system" && <Check className="w-4 h-4 text-[#9C7A4C]" />}
+                      <Sparkles className="w-5 h-5 text-[#9C7A4C] dark:text-[#C4A880]" />
+                      {settings.theme === "system" && <Check className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" />}
                     </div>
-                    <div className="font-bold text-sm text-[#1C1C1E]">System Default</div>
-                    <div className="text-xs text-[#5B5F73] mt-1">Matches your OS color scheme.</div>
+                    <div className="font-bold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">System Default</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD] mt-1">Matches your OS color scheme.</div>
                   </button>
 
                   <button
@@ -899,16 +873,16 @@ export default function SettingsPage() {
                     onClick={() => updateSettingState("theme", "light")}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       settings.theme === "light"
-                        ? "border-[#9C7A4C] ring-2 ring-[#9C7A4C]/30 bg-[#EFEDE8]/50"
-                        : "border-[#5B5F73]/20 hover:border-[#9C7A4C]/40 bg-white"
+                        ? "border-[#9C7A4C] ring-2 ring-[#9C7A4C]/30 bg-[#EFEDE8]/50 dark:bg-[#1A1E2E] dark:border-[#C4A880] shadow-xs"
+                        : "border-[#5B5F73]/20 hover:border-[#9C7A4C]/40 bg-white dark:bg-[#141722] dark:border-[#252A3D]"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <SunMoon className="w-5 h-5 text-[#9C7A4C]" />
-                      {settings.theme === "light" && <Check className="w-4 h-4 text-[#9C7A4C]" />}
+                      <SunMoon className="w-5 h-5 text-[#9C7A4C] dark:text-[#C4A880]" />
+                      {settings.theme === "light" && <Check className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" />}
                     </div>
-                    <div className="font-bold text-sm text-[#1C1C1E]">Light Mode</div>
-                    <div className="text-xs text-[#5B5F73] mt-1">High-contrast bright canvas.</div>
+                    <div className="font-bold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Light Mode</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD] mt-1">High-contrast bright canvas.</div>
                   </button>
 
                   <button
@@ -916,28 +890,28 @@ export default function SettingsPage() {
                     onClick={() => updateSettingState("theme", "dark")}
                     className={`p-4 rounded-xl border text-left transition-all ${
                       settings.theme === "dark"
-                        ? "border-[#9C7A4C] ring-2 ring-[#9C7A4C]/30 bg-[#EFEDE8]/50"
-                        : "border-[#5B5F73]/20 hover:border-[#9C7A4C]/40 bg-white"
+                        ? "border-[#9C7A4C] ring-2 ring-[#9C7A4C]/30 bg-[#EFEDE8]/50 dark:bg-[#1A1E2E] dark:border-[#C4A880] shadow-xs"
+                        : "border-[#5B5F73]/20 hover:border-[#9C7A4C]/40 bg-white dark:bg-[#141722] dark:border-[#252A3D]"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <SunMoon className="w-5 h-5 text-[#9C7A4C]" />
-                      {settings.theme === "dark" && <Check className="w-4 h-4 text-[#9C7A4C]" />}
+                      <SunMoon className="w-5 h-5 text-[#9C7A4C] dark:text-[#C4A880]" />
+                      {settings.theme === "dark" && <Check className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" />}
                     </div>
-                    <div className="font-bold text-sm text-[#1C1C1E]">Dark Mode</div>
-                    <div className="text-xs text-[#5B5F73] mt-1">Comfortable low-glare tone.</div>
+                    <div className="font-bold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Dark Mode</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD] mt-1">Comfortable low-glare tone.</div>
                   </button>
                 </div>
               </div>
 
               {/* Accessibility Controls */}
-              <div className="space-y-4 pt-4 border-t border-[#9C7A4C]/10">
-                <h3 className="text-sm font-bold text-[#1C1C1E] uppercase tracking-wider">Display & Accessibility</h3>
+              <div className="space-y-4 pt-4 border-t border-[#9C7A4C]/10 dark:border-[#252A3D]">
+                <h3 className="text-sm font-bold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider">Display & Accessibility</h3>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722]">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Compact Layout Mode</div>
-                    <div className="text-xs text-[#5B5F73]">Reduces padding and table row spacing to show more content per screen.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Compact Layout Mode</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Reduces padding and table row spacing to show more content per screen.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -947,10 +921,10 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722]">
                   <div>
-                    <div className="font-semibold text-sm text-[#1C1C1E]">Reduced Motion</div>
-                    <div className="text-xs text-[#5B5F73]">Disables decorative transitions and micro-animations for smoother rendering.</div>
+                    <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Reduced Motion</div>
+                    <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Disables decorative transitions and micro-animations for smoother rendering.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -971,7 +945,7 @@ export default function SettingsPage() {
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-[#1C1C1E]">Profile Visibility & Privacy</CardTitle>
+                <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Profile Visibility & Privacy</CardTitle>
                 <CardDescription>
                   Control how your skills, portfolio, and identity are discovered across teams.
                 </CardDescription>
@@ -986,10 +960,10 @@ export default function SettingsPage() {
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                 <div>
-                  <div className="font-semibold text-sm text-[#1C1C1E]">Visible to Assigned Mentors</div>
-                  <div className="text-xs text-[#5B5F73]">Allow verified mentors to view your problem match history and learning path.</div>
+                  <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Visible to Assigned Mentors</div>
+                  <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Allow verified mentors to view your problem match history and learning path.</div>
                 </div>
                 <input
                   type="checkbox"
@@ -999,10 +973,10 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                 <div>
-                  <div className="font-semibold text-sm text-[#1C1C1E]">Visible to Project Teammates</div>
-                  <div className="text-xs text-[#5B5F73]">Display contact details and collaborative tasks to accepted teammates.</div>
+                  <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Visible to Project Teammates</div>
+                  <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Display contact details and collaborative tasks to accepted teammates.</div>
                 </div>
                 <input
                   type="checkbox"
@@ -1012,10 +986,10 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                 <div>
-                  <div className="font-semibold text-sm text-[#1C1C1E]">Display Skills on Platform Leaderboard</div>
-                  <div className="text-xs text-[#5B5F73]">Highlight your verified proficiency badges on leaderboard rankings.</div>
+                  <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Display Skills on Platform Leaderboard</div>
+                  <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Highlight your verified proficiency badges on leaderboard rankings.</div>
                 </div>
                 <input
                   type="checkbox"
@@ -1025,10 +999,10 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 bg-white hover:bg-[#EFEDE8]/30 transition-colors">
+              <div className="flex items-center justify-between p-3 rounded-lg border border-[#9C7A4C]/10 dark:border-[#252A3D] bg-white dark:bg-[#141722] hover:bg-[#EFEDE8]/30 dark:hover:bg-[#1A1E2E]/50 transition-colors">
                 <div>
-                  <div className="font-semibold text-sm text-[#1C1C1E]">Allow Institutional & Recruiter Discovery</div>
-                  <div className="text-xs text-[#5B5F73]">Allow faculty coordinators to match your profile with relevant challenges.</div>
+                  <div className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6]">Allow Institutional & Recruiter Discovery</div>
+                  <div className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Allow faculty coordinators to match your profile with relevant challenges.</div>
                 </div>
                 <input
                   type="checkbox"
@@ -1048,7 +1022,7 @@ export default function SettingsPage() {
           <Card className="border-[#9C7A4C]/20 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-[#1C1C1E]">Application Preferences</CardTitle>
+                <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">Application Preferences</CardTitle>
                 <CardDescription>
                   Configure your default dashboard view, time format, and timezone.
                 </CardDescription>
@@ -1064,8 +1038,8 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4 max-w-xl">
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Layout className="w-4 h-4 text-[#9C7A4C]" /> Default Dashboard Landing Page
+                <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Layout className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" /> Default Dashboard Landing Page
                 </label>
                 <select
                   value={settings.application.defaultDashboard}
@@ -1079,20 +1053,20 @@ export default function SettingsPage() {
                     };
                     setSettings(updated);
                   }}
-                  className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] bg-white text-[#1C1C1E]"
+                  className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] bg-white dark:bg-[#1A1E2E] text-[#1C1C1E] dark:text-[#F3F4F6]"
                 >
-                  <option value="overview">Dashboard Overview (/dashboard)</option>
-                  <option value="problems">Explore Problems (/explore/problems)</option>
-                  <option value="projects">Active Projects (/dashboard/projects)</option>
+                  <option value="overview" className="bg-white dark:bg-[#1A1E2E] text-[#1C1C1E] dark:text-[#F3F4F6]">Dashboard Overview (/dashboard)</option>
+                  <option value="problems" className="bg-white dark:bg-[#1A1E2E] text-[#1C1C1E] dark:text-[#F3F4F6]">Explore Problems (/explore/problems)</option>
+                  <option value="projects" className="bg-white dark:bg-[#1A1E2E] text-[#1C1C1E] dark:text-[#F3F4F6]">Active Projects (/dashboard/projects)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-[#9C7A4C]" /> Time Format
+                <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" /> Time Format
                 </label>
                 <div className="flex gap-4">
-                  <label className="flex items-center gap-2 text-sm text-[#1C1C1E] cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm text-[#1C1C1E] dark:text-[#F3F4F6] cursor-pointer">
                     <input
                       type="radio"
                       name="timeFormat"
@@ -1109,7 +1083,7 @@ export default function SettingsPage() {
                     />
                     12-Hour (1:30 PM)
                   </label>
-                  <label className="flex items-center gap-2 text-sm text-[#1C1C1E] cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm text-[#1C1C1E] dark:text-[#F3F4F6] cursor-pointer">
                     <input
                       type="radio"
                       name="timeFormat"
@@ -1130,8 +1104,8 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1E] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Globe className="w-4 h-4 text-[#9C7A4C]" /> Timezone
+                <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-[#F3F4F6] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Globe className="w-4 h-4 text-[#9C7A4C] dark:text-[#C4A880]" /> Timezone
                 </label>
                 <input
                   type="text"
@@ -1143,7 +1117,7 @@ export default function SettingsPage() {
                     };
                     setSettings(updated);
                   }}
-                  className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E]"
+                  className="w-full px-3 py-2 text-sm border border-[#9C7A4C]/30 dark:border-[#2E3350] bg-white dark:bg-[#1A1E2E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9C7A4C] text-[#1C1C1E] dark:text-[#F3F4F6]"
                   placeholder="e.g. Asia/Kolkata or UTC"
                 />
               </div>

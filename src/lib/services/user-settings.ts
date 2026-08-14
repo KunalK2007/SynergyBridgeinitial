@@ -4,6 +4,8 @@ import { UserSettings, DEFAULT_USER_SETTINGS, ThemePreference } from "@/types/se
 
 const SETTINGS_STORAGE_KEY = "synergybridge_user_settings";
 
+let mediaQueryListener: ((e: MediaQueryListEvent) => void) | null = null;
+
 /**
  * Loads the user settings from Firestore with a fallback to localStorage/defaults.
  */
@@ -57,8 +59,8 @@ export async function getUserSettings(userId: string): Promise<UserSettings> {
       const local = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
       if (local) {
         const parsed = JSON.parse(local);
-        if (parsed.userId === userId) {
-          return parsed as UserSettings;
+        if (parsed.userId === userId || !parsed.userId) {
+          return { ...defaultSettings, ...parsed, userId } as UserSettings;
         }
       }
     } catch {
@@ -113,21 +115,48 @@ export async function saveUserSettings(
 }
 
 /**
- * Applies the selected theme to the root HTML element immediately.
+ * Applies the selected theme to the root HTML element immediately with OS dynamic reactivity.
  */
 export function applyTheme(theme: ThemePreference) {
   if (typeof document === "undefined") return;
 
   const root = document.documentElement;
-  if (theme === "dark") {
-    root.classList.add("dark");
-    root.setAttribute("data-theme", "dark");
-  } else if (theme === "light") {
-    root.classList.remove("dark");
-    root.setAttribute("data-theme", "light");
+
+  // Clean up any previously attached media query listeners
+  if (typeof window !== "undefined" && window.matchMedia) {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mediaQueryListener) {
+      mediaQuery.removeEventListener("change", mediaQueryListener);
+      mediaQueryListener = null;
+    }
+
+    if (theme === "dark") {
+      root.classList.add("dark");
+      root.setAttribute("data-theme", "dark");
+    } else if (theme === "light") {
+      root.classList.remove("dark");
+      root.setAttribute("data-theme", "light");
+    } else {
+      // System Default
+      const updateSystemTheme = (isDark: boolean) => {
+        if (isDark) {
+          root.classList.add("dark");
+          root.setAttribute("data-theme", "dark");
+        } else {
+          root.classList.remove("dark");
+          root.setAttribute("data-theme", "light");
+        }
+      };
+
+      updateSystemTheme(mediaQuery.matches);
+
+      mediaQueryListener = (e: MediaQueryListEvent) => {
+        updateSystemTheme(e.matches);
+      };
+      mediaQuery.addEventListener("change", mediaQueryListener);
+    }
   } else {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (prefersDark) {
+    if (theme === "dark") {
       root.classList.add("dark");
       root.setAttribute("data-theme", "dark");
     } else {

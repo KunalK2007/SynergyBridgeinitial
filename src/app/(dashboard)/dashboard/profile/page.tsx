@@ -98,30 +98,30 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] mb-2">Profile</h1>
-        <p className="text-[#5B5F73]">Manage your personal information and preferences.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E] dark:text-[#F3F4F6] mb-2">Profile</h1>
+        <p className="text-[#5B5F73] dark:text-[#9499AD]">Manage your personal information and preferences.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>Update your display name and view your account details.</CardDescription>
+          <CardTitle className="text-[#1C1C1E] dark:text-[#F3F4F6]">Basic Information</CardTitle>
+          <CardDescription className="text-[#5B5F73] dark:text-[#9499AD]">Update your display name and view your account details.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Email Address</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E] dark:text-[#F3F4F6]">Email Address</label>
               <Input
                 type="email"
                 value={currentUser?.email || ""}
                 disabled
-                className="bg-[#5B5F73]/10 cursor-not-allowed text-[#5B5F73]"
+                className="bg-[#5B5F73]/10 dark:bg-[#1A1E2E] cursor-not-allowed text-[#5B5F73] dark:text-[#9499AD]"
               />
-              <p className="text-xs text-[#5B5F73]">Your email cannot be changed at this time.</p>
+              <p className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Your email cannot be changed at this time.</p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Display Name</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E] dark:text-[#F3F4F6]">Display Name</label>
               <Input
                 {...register("displayName")}
                 error={errors.displayName?.message}
@@ -129,11 +129,11 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium leading-none text-[#1C1C1E]">Role</label>
+              <label className="text-sm font-medium leading-none text-[#1C1C1E] dark:text-[#F3F4F6]">Role</label>
               <Input
                 value={currentUser?.role || ""}
                 disabled
-                className="bg-[#5B5F73]/10 cursor-not-allowed text-[#5B5F73] capitalize"
+                className="bg-[#5B5F73]/10 dark:bg-[#1A1E2E] cursor-not-allowed text-[#5B5F73] dark:text-[#9499AD] capitalize"
               />
             </div>
 
@@ -143,9 +143,9 @@ export default function ProfilePage() {
                   type="checkbox"
                   id="showOnLeaderboard"
                   {...register("showOnLeaderboard")}
-                  className="rounded border-[#5B5F73] bg-[#F6F5F2] text-[#9C7A4C] focus:ring-[#9C7A4C] w-4 h-4"
+                  className="rounded border-[#5B5F73] bg-[#F6F5F2] dark:bg-[#1A1E2E] text-[#9C7A4C] focus:ring-[#9C7A4C] w-4 h-4"
                 />
-                <label htmlFor="showOnLeaderboard" className="text-sm font-medium leading-none text-[#1C1C1E]">
+                <label htmlFor="showOnLeaderboard" className="text-sm font-medium leading-none text-[#1C1C1E] dark:text-[#F3F4F6]">
                   Show my profile on public leaderboards
                 </label>
               </div>
@@ -159,10 +159,10 @@ export default function ProfilePage() {
       </Card>
 
       {currentUser?.role === UserRole.STUDENT && (
-        <div className="pt-8 border-t border-[#5B5F73]/20">
-          <h2 className="text-2xl font-bold text-[#1C1C1E] mb-6">Capability Profile</h2>
+        <div className="pt-8 border-t border-[#5B5F73]/20 dark:border-[#252A3D]">
+          <h2 className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6] mb-6">Capability Profile</h2>
           {fetchingStudent ? (
-            <div className="text-[#5B5F73]">Loading your profile data...</div>
+            <div className="text-[#5B5F73] dark:text-[#9499AD]">Loading your profile data...</div>
           ) : (
             studentData && <StudentOnboardingForm initialData={studentData} isEditMode={true} />
           )}

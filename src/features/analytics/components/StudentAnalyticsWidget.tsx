@@ -54,46 +54,46 @@ export function StudentAnalyticsWidget() {
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-xl">SynergyBridge Outcomes &amp; Impact</CardTitle>
+        <CardTitle className="text-xl text-[#1C1C1E] dark:text-[#F3F4F6]">SynergyBridge Outcomes &amp; Impact</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
-            <Target className="w-5 h-5 text-[#9C7A4C] mb-2" />
-            <span className="text-2xl font-bold text-[#1C1C1E]">{data.averageFitScore.available ? `${Math.round(data.averageFitScore.value as number)}%` : "--"}</span>
-            <span className="text-xs text-[#5B5F73]">Avg Fit Score</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/15 dark:border-[#252A3D]">
+            <Target className="w-5 h-5 text-[#9C7A4C] dark:text-[#C4A880] mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">{data.averageFitScore.available ? `${Math.round(data.averageFitScore.value as number)}%` : "--"}</span>
+            <span className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Avg Fit Score</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
-            <FileText className="w-5 h-5 text-[#5B5F73] mb-2" />
-            <span className="text-2xl font-bold text-[#1C1C1E]">{data.applicationsSubmitted.available ? data.applicationsSubmitted.value : "--"}</span>
-            <span className="text-xs text-[#5B5F73]">Applications</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/15 dark:border-[#252A3D]">
+            <FileText className="w-5 h-5 text-[#5B5F73] dark:text-[#9499AD] mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">{data.applicationsSubmitted.available ? data.applicationsSubmitted.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Applications</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/15 dark:border-[#252A3D]">
             <Briefcase className="w-5 h-5 text-amber-600 mb-2" />
-            <span className="text-2xl font-bold text-[#1C1C1E]">{data.projectsActive.available ? data.projectsActive.value : "--"}</span>
-            <span className="text-xs text-[#5B5F73]">Active Projects</span>
+            <span className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">{data.projectsActive.available ? data.projectsActive.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Active Projects</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
-            <CheckCircle className="w-5 h-5 text-emerald-600 mb-2" />
-            <span className="text-2xl font-bold text-[#1C1C1E]">{data.projectsCompleted.available ? data.projectsCompleted.value : "--"}</span>
-            <span className="text-xs text-[#5B5F73]">Completed Projects</span>
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/15 dark:border-[#252A3D]">
+            <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mb-2" />
+            <span className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">{data.projectsCompleted.available ? data.projectsCompleted.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Completed Projects</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/15 dark:border-[#252A3D]">
             <Award className="w-5 h-5 text-yellow-500 mb-2" />
-            <span className="text-2xl font-bold text-[#1C1C1E]">{data.certificatesIssued.available ? data.certificatesIssued.value : "--"}</span>
-            <span className="text-xs text-[#5B5F73]">Certificates</span>
+            <span className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">{data.certificatesIssued.available ? data.certificatesIssued.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Certificates</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] rounded-lg border border-[#5B5F73]/15">
+          <div className="flex flex-col items-center p-3 bg-[#F6F5F2] dark:bg-[#1A1E2E] rounded-lg border border-[#5B5F73]/15 dark:border-[#252A3D]">
             <Flame className="w-5 h-5 text-red-500 mb-2" />
-            <span className="text-2xl font-bold text-[#1C1C1E]">{data.currentStreak.available ? data.currentStreak.value : "--"}</span>
-            <span className="text-xs text-[#5B5F73]">Day Streak</span>
+            <span className="text-2xl font-bold text-[#1C1C1E] dark:text-[#F3F4F6]">{data.currentStreak.available ? data.currentStreak.value : "--"}</span>
+            <span className="text-xs text-[#5B5F73] dark:text-[#9499AD]">Day Streak</span>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 p-4 bg-[#9C7A4C]/5 rounded-lg border border-[#9C7A4C]/10">
+        <div className="flex flex-col md:flex-row gap-4 p-4 bg-[#9C7A4C]/5 dark:bg-[#9C7A4C]/10 rounded-lg border border-[#9C7A4C]/10 dark:border-[#9C7A4C]/20">
           <div className="flex-1">
-            <h4 className="font-semibold text-sm text-[#1C1C1E] mb-1">Boost Your Impact</h4>
-            <p className="text-xs text-[#5B5F73] mb-3">
+            <h4 className="font-semibold text-sm text-[#1C1C1E] dark:text-[#F3F4F6] mb-1">Boost Your Impact</h4>
+            <p className="text-xs text-[#5B5F73] dark:text-[#9499AD] mb-3">
               {data.profileCompleteness.value === 100
                 ? "Your profile is fully complete. Explore new problems to match your highest fit score!"
                 : `Your profile is only ${data.profileCompleteness.value}% complete. Update your skills to improve your match rate.`}
