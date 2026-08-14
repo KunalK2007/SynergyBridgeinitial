@@ -97,6 +97,8 @@ export const draftProblemSchema = z.object({
   sdgs: z.array(z.number()).optional().default([]),
   targetBeneficiaries: z.array(z.string()).optional().default([]),
   geographicScope: z.string().optional(),
+  region: z.string().optional(),
+  district: z.string().optional(),
   state: z.string().optional(),
   country: z.string().optional(),
   constraints: z.array(z.any()).optional().default([]),
@@ -104,6 +106,7 @@ export const draftProblemSchema = z.object({
   minTeamSize: optionalNumber(z.number()),
   maxTeamSize: optionalNumber(z.number()),
   estimatedDurationWeeks: optionalNumber(z.number()),
+  deadline: optionalNumber(z.number()),
   funding: z.any().optional(),
 });
 

@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -77,7 +77,7 @@ export function CreateProblemForm() {
         if (snap.exists()) {
           const problemData = snap.data() as Problem;
           if (problemData.posterId === currentUser.uid || currentUser.role === UserRole.ADMIN) {
-            setSavedProblemId(problemData.id);
+            setSavedProblemId(problemData.id || snap.id || draftIdParam);
             methods.reset({
               title: problemData.title || "",
               shortDescription: problemData.shortDescription || "",
@@ -94,6 +94,8 @@ export function CreateProblemForm() {
               sdgs: problemData.sdgs || [],
               targetBeneficiaries: problemData.targetBeneficiaries || [],
               geographicScope: problemData.geographicScope,
+              region: problemData.region || "",
+              district: problemData.district || "",
               state: problemData.state || "",
               country: problemData.country || "",
               constraints: problemData.constraints || [],
@@ -149,6 +151,17 @@ export function CreateProblemForm() {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
+  const cleanFormData = useCallback((raw: ProblemFormValues) => {
+    return {
+      ...raw,
+      successCriteria: (raw.successCriteria || []).filter(c => typeof c === 'string' && c.trim().length > 0),
+      targetBeneficiaries: (raw.targetBeneficiaries || []).filter(b => typeof b === 'string' && b.trim().length > 0),
+      skills: (raw.skills || []).filter(s => s && typeof s.name === 'string' && s.name.trim().length > 0 && typeof s.skillId === 'string' && s.skillId.trim().length > 0),
+      constraints: (raw.constraints || []).filter(c => c && typeof c.description === 'string' && c.description.trim().length > 0),
+      tags: (raw.tags || []).filter(t => typeof t === 'string' && t.trim().length > 0),
+    };
+  }, []);
+
   const saveProblem = async (action: "DRAFT" | "PUBLISH") => {
     if (!currentUser) {
       toast.error("You must be logged in to save or submit a problem.");
@@ -174,10 +187,12 @@ export function CreateProblemForm() {
         return;
       }
 
-      const formData = methods.getValues();
+      const rawValues = methods.getValues();
+      const formData = cleanFormData(rawValues);
+
       const payload = {
         action,
-        problemId: savedProblemId || undefined,
+        problemId: savedProblemId || draftIdParam || undefined,
         data: formData,
       };
 
@@ -193,12 +208,14 @@ export function CreateProblemForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || "Failed to save problem");
+        toast.error(data.error || data.details || "Failed to save problem");
         return;
       }
 
       const newProblemId = data.problemId;
-      setSavedProblemId(newProblemId);
+      if (newProblemId) {
+        setSavedProblemId(newProblemId);
+      }
 
       if (action === "PUBLISH") {
         if (currentUser.role === UserRole.STUDENT) {
@@ -210,6 +227,17 @@ export function CreateProblemForm() {
         }
       } else {
         toast.success("Draft saved successfully!");
+        if (typeof window !== "undefined" && newProblemId) {
+          try {
+            const currentUrl = new URL(window.location.href);
+            if (!currentUrl.searchParams.get("id")) {
+              currentUrl.searchParams.set("id", newProblemId);
+              window.history.replaceState(null, "", currentUrl.toString());
+            }
+          } catch {
+            // Ignore URL update errors
+          }
+        }
       }
     } catch (error) {
       console.error("Save problem error:", error);

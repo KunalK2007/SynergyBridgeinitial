@@ -5,6 +5,27 @@ import { problemSchema, draftProblemSchema } from "@/lib/validation/problem";
 import { ProblemStatus, VerificationStatus } from "@/types/problem";
 import { UserRole } from "@/types/auth";
 
+export function sanitizeForFirestore<T>(data: T): T {
+  if (data === null || data === undefined) {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data
+      .map((item) => sanitizeForFirestore(item))
+      .filter((item) => item !== undefined) as unknown as T;
+  }
+  if (typeof data === "object" && !(data instanceof Date)) {
+    const result: Record<string, any> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        result[key] = sanitizeForFirestore(value);
+      }
+    }
+    return result as T;
+  }
+  return data;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("Authorization");
@@ -21,13 +42,21 @@ export async function POST(req: NextRequest) {
     }
 
     const uid = decodedToken.uid;
-    const userDoc = await adminDb.collection("users").doc(uid).get();
-    if (!userDoc.exists) {
-      return NextResponse.json({ error: "User profile not found in database" }, { status: 404 });
-    }
+    let userRole = UserRole.STUDENT;
+    let displayName = decodedToken.name || decodedToken.email?.split("@")[0] || "Innovator";
+    let institutionId: string | null = null;
 
-    const userData = userDoc.data()!;
-    const userRole = (userData.role as UserRole) || UserRole.STUDENT;
+    try {
+      const userDoc = await adminDb.collection("users").doc(uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data()!;
+        userRole = (userData.role as UserRole) || UserRole.STUDENT;
+        displayName = userData.displayName || displayName;
+        institutionId = userData.institutionId || null;
+      }
+    } catch (err) {
+      console.warn("Could not fetch userDoc from adminDb, using token metadata fallback:", err);
+    }
 
     const body = await req.json();
     const action = body.action === "PUBLISH" ? "PUBLISH" : "DRAFT";
@@ -83,17 +112,21 @@ export async function POST(req: NextRequest) {
     // Check if updating existing problem that user owns
     let createdAt = now;
     if (existingProblemId) {
-      const existingSnap = await problemRef.get();
-      if (existingSnap.exists) {
-        const exData = existingSnap.data()!;
-        if (exData.posterId !== uid && userRole !== UserRole.ADMIN) {
-          return NextResponse.json({ error: "Forbidden: You cannot modify this problem" }, { status: 403 });
+      try {
+        const existingSnap = await problemRef.get();
+        if (existingSnap.exists) {
+          const exData = existingSnap.data()!;
+          if (exData.posterId && exData.posterId !== uid && userRole !== UserRole.ADMIN) {
+            return NextResponse.json({ error: "Forbidden: You cannot modify this problem" }, { status: 403 });
+          }
+          createdAt = exData.createdAt || now;
         }
-        createdAt = exData.createdAt || now;
+      } catch (err) {
+        console.warn("Could not check existing problem snap:", err);
       }
     }
 
-    const problemDoc = {
+    const rawProblemDoc = {
       ...parsedData,
       id: problemId,
       status: finalStatus,
@@ -101,11 +134,13 @@ export async function POST(req: NextRequest) {
       visibility: finalVisibility,
       posterId: uid,
       posterRole: userRole,
-      organizationName: userData.displayName || decodedToken.email?.split("@")[0] || "Organization",
-      institutionId: userData.institutionId || null,
+      organizationName: displayName,
+      institutionId,
       createdAt,
       updatedAt: now,
     };
+
+    const problemDoc = sanitizeForFirestore(rawProblemDoc);
 
     await problemRef.set(problemDoc, { merge: true });
 
@@ -148,7 +183,6 @@ export async function GET(req: NextRequest) {
       .get();
 
     const problems = snap.docs.map(doc => doc.data());
-    problems.sort((a: any, b: any) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
     return NextResponse.json({
       success: true,

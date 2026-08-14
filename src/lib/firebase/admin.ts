@@ -28,4 +28,10 @@ if (!getApps().length) {
 }
 
 export const adminDb = getFirestore();
+try {
+  adminDb.settings({ ignoreUndefinedProperties: true });
+} catch {
+  // Settings may already be locked or initialized
+}
+
 export const adminAuth = getAuth();

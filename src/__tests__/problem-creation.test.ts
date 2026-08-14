@@ -1,41 +1,47 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { problemSchema, draftProblemSchema } from "@/lib/validation/problem";
-import { ProblemType, DifficultyLevel, GeographicScope, TeamPreference, RequirementType, SkillImportance, SkillLevel, ProblemStatus, VerificationStatus } from "@/types/problem";
+import { 
+  ProblemType, 
+  DifficultyLevel, 
+  GeographicScope, 
+  TeamPreference, 
+  RequirementType, 
+  SkillImportance, 
+  SkillLevel, 
+  ProblemStatus, 
+  VerificationStatus 
+} from "@/types/problem";
 import { UserRole } from "@/types/auth";
 import { NextRequest } from "next/server";
+import { sanitizeForFirestore } from "@/app/api/problems/route";
+
+// Store mock database items
+const mockProblemsDb: Record<string, any> = {
+  mock_prob_123: {
+    id: "mock_prob_123",
+    posterId: "user_faculty_1",
+    createdAt: 1000,
+    title: "Test Problem",
+    status: "PUBLISHED",
+    updatedAt: 2000,
+  },
+  mock_student_draft_1: {
+    id: "mock_student_draft_1",
+    posterId: "user_student_1",
+    createdAt: 1500,
+    title: "Student Initial Draft",
+    status: ProblemStatus.DRAFT,
+    verificationStatus: VerificationStatus.UNVERIFIED,
+    updatedAt: 1500,
+  },
+};
 
 // Mock Firebase Admin
 vi.mock("@/lib/firebase/admin", () => {
-  const mockSet = vi.fn().mockResolvedValue(true);
-  const mockDoc = {
-    id: "mock_prob_123",
-    get: vi.fn().mockResolvedValue({
-      exists: true,
-      data: () => ({ posterId: "user_faculty_1", createdAt: 1000 }),
-    }),
-    set: mockSet,
-  };
-
-  const mockCollection = {
-    doc: vi.fn((id) => ({
-      ...mockDoc,
-      id: id || "mock_prob_new",
-    })),
-    where: vi.fn().mockReturnThis(),
-    get: vi.fn().mockResolvedValue({
-      docs: [
-        {
-          id: "mock_prob_123",
-          data: () => ({
-            id: "mock_prob_123",
-            title: "Test Problem",
-            status: "PUBLISHED",
-            updatedAt: 2000,
-          }),
-        },
-      ],
-    }),
-  };
+  const mockSet = vi.fn().mockImplementation((data: any) => {
+    return Promise.resolve(data);
+  });
 
   return {
     adminAuth: {
@@ -53,6 +59,7 @@ vi.mock("@/lib/firebase/admin", () => {
       }),
     },
     adminDb: {
+      settings: vi.fn(),
       collection: vi.fn((colName: string) => {
         if (colName === "users") {
           return {
@@ -72,7 +79,26 @@ vi.mock("@/lib/firebase/admin", () => {
             })),
           };
         }
-        return mockCollection;
+        return {
+          doc: vi.fn((id?: string) => {
+            const docId = id || "mock_prob_new";
+            return {
+              id: docId,
+              get: vi.fn().mockResolvedValue({
+                exists: !!mockProblemsDb[docId],
+                data: () => mockProblemsDb[docId] || {},
+              }),
+              set: mockSet,
+            };
+          }),
+          where: vi.fn().mockReturnThis(),
+          get: vi.fn().mockResolvedValue({
+            docs: Object.values(mockProblemsDb).map((d) => ({
+              id: d.id,
+              data: () => d,
+            })),
+          }),
+        };
       }),
     },
   };
@@ -155,6 +181,25 @@ describe("Problem Validation & Creation Workflow", () => {
     expect(result.success).toBe(true);
   });
 
+  it("sanitizes undefined fields to ensure Firestore compatibility", () => {
+    const dataWithUndefined = {
+      title: "Clean Problem",
+      subDomain: undefined,
+      nested: {
+        amount: undefined,
+        currency: "INR",
+      },
+      list: ["one", undefined, "three"],
+    };
+
+    const sanitized = sanitizeForFirestore(dataWithUndefined);
+    expect(sanitized.title).toBe("Clean Problem");
+    expect("subDomain" in sanitized).toBe(false);
+    expect("amount" in (sanitized as any).nested).toBe(false);
+    expect((sanitized as any).nested.currency).toBe("INR");
+    expect((sanitized as any).list).toEqual(["one", "three"]);
+  });
+
   describe("Authoritative API (/api/problems)", () => {
     let POST: (req: NextRequest) => Promise<Response>;
     let GET: (req: NextRequest) => Promise<Response>;
@@ -217,7 +262,7 @@ describe("Problem Validation & Creation Workflow", () => {
       expect(json.problem.visibility).toBe("PRIVATE");
     });
 
-    it("allows saving a draft for any authenticated user", async () => {
+    it("allows saving a draft for any authenticated user with partial data", async () => {
       const req = new NextRequest("http://localhost/api/problems", {
         method: "POST",
         headers: {
@@ -232,6 +277,71 @@ describe("Problem Validation & Creation Workflow", () => {
       const json = await res.json();
       expect(json.success).toBe(true);
       expect(json.status).toBe(ProblemStatus.DRAFT);
+      expect(json.verificationStatus).toBe(VerificationStatus.UNVERIFIED);
+      expect(json.problem.title).toBe("Draft Idea");
+    });
+
+    it("updates existing draft without creating duplicate when problemId is supplied", async () => {
+      const req = new NextRequest("http://localhost/api/problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer token_student",
+        },
+        body: JSON.stringify({
+          action: "DRAFT",
+          problemId: "mock_student_draft_1",
+          data: { title: "Updated Draft Title", domain: "Clean Energy" },
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(json.problemId).toBe("mock_student_draft_1");
+      expect(json.problem.title).toBe("Updated Draft Title");
+    });
+
+    it("transitions an existing draft to PENDING_REVIEW upon student Submit for Review", async () => {
+      const req = new NextRequest("http://localhost/api/problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer token_student",
+        },
+        body: JSON.stringify({
+          action: "PUBLISH",
+          problemId: "mock_student_draft_1",
+          data: validProblemData,
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(json.problemId).toBe("mock_student_draft_1");
+      expect(json.verificationStatus).toBe(VerificationStatus.PENDING_REVIEW);
+      expect(json.problem.title).toBe(validProblemData.title);
+    });
+
+    it("forbids unauthorized users from modifying another user's problem", async () => {
+      const req = new NextRequest("http://localhost/api/problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer token_student",
+        },
+        body: JSON.stringify({
+          action: "DRAFT",
+          problemId: "mock_prob_123", // Owned by user_faculty_1
+          data: { title: "Hijacked Title" },
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(403);
     });
 
     it("fetches problems created by the authenticated user via GET", async () => {
