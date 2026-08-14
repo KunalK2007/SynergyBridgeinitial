@@ -16,6 +16,11 @@ export interface Project {
   mentorId?: string;
   coordinatorId?: string;
   title: string;
+  description?: string;
+  category?: string;
+  domain?: string;
+  keyObjective?: string;
+  objectives?: string[];
   status: ProjectStatus;
   progress: number;
   startDate: number;

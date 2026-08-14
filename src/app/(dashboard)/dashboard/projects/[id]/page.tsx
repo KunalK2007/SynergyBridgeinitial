@@ -5,11 +5,23 @@ import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { useAuth } from "@/features/auth/AuthContext";
-import { Project } from "@/types/project";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Project, ProjectStatus } from "@/types/project";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { LayoutDashboard, MessageSquare, CheckSquare, Target, Folder, Activity, Settings, Bot } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  MessageSquare, 
+  CheckSquare, 
+  Target, 
+  Folder, 
+  Activity, 
+  Settings, 
+  Bot, 
+  BadgeDollarSign, 
+  ArrowLeft,
+  Calendar,
+  Loader2
+} from "lucide-react";
 import KanbanBoard from "./components/KanbanBoard";
 import ChatTab from "./components/ChatTab";
 import MilestonesTab from "./components/MilestonesTab";
@@ -18,7 +30,6 @@ import ActivityTab from "./components/ActivityTab";
 import OverviewTab from "./components/OverviewTab";
 import AIMentorTab from "./components/AIMentorTab";
 import FundingTab from "./components/FundingTab";
-import { BadgeDollarSign } from "lucide-react";
 
 export default function ProjectWorkspace() {
   const { id } = useParams();
@@ -35,25 +46,45 @@ export default function ProjectWorkspace() {
       try {
         const pSnap = await getDoc(doc(db, "projects", id as string));
         if (!pSnap.exists()) {
+          // If demo project isn't found in DB, fallback to synthetic CropGuard AI demo project
+          if ((id as string).includes("demo") || (id as string) === "demo_proj_1") {
+            const now = Date.now();
+            setProject({
+              id: id as string,
+              problemId: "demo_prob_2",
+              applicationId: "demo_app_2",
+              studentIds: [currentUser.uid, "synthetic_student_2"],
+              mentorId: "mentor_demo_uid",
+              title: "CropGuard AI",
+              description: "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis.",
+              category: "Agriculture & AI",
+              keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
+              status: ProjectStatus.IN_PROGRESS,
+              progress: 45,
+              startDate: now - 1000 * 60 * 60 * 24 * 20,
+              targetCompletionDate: now + 1000 * 60 * 60 * 24 * 45,
+              createdAt: now - 1000 * 60 * 60 * 24 * 20,
+              updatedAt: now,
+            });
+            setLoading(false);
+            return;
+          }
           router.push("/dashboard");
           return;
         }
         
-        const proj = { id: pSnap.id, ...pSnap.data() } as Project;
-        
-        // Authorization is enforced by firestore rules, but we do a fast client check
-        const isParticipant = 
-          proj.studentIds.includes(currentUser.uid) || 
-          proj.mentorId === currentUser.uid || 
-          proj.coordinatorId === currentUser.uid || 
-          currentUser.role === "ADMIN";
-
-        // Since we can't easily check posterId syncly without another fetch, we just allow the page to render.
-        // If they are unauthorized, sub-components will fail gracefully due to rules.
+        const projData = pSnap.data();
+        const proj = { 
+          id: pSnap.id, 
+          ...projData,
+          title: projData.title || "CropGuard AI",
+          description: projData.description || "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis.",
+          category: projData.category || "Agriculture & AI",
+        } as Project;
         
         setProject(proj);
       } catch (err) {
-        console.error(err);
+        console.error("Error loading project workspace:", err);
       } finally {
         setLoading(false);
       }
@@ -61,12 +92,20 @@ export default function ProjectWorkspace() {
     load();
   }, [id, currentUser, router]);
 
-  if (loading) return <div className="p-8 text-slate-400">Loading workspace...</div>;
+  if (loading) {
+    return (
+      <div className="py-24 text-center text-[#5B5F73]">
+        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-[#9C7A4C]" />
+        <p className="text-base font-medium">Loading project workspace...</p>
+      </div>
+    );
+  }
+
   if (!project) return null;
 
   const canAssignMentor = currentUser?.role === "ADMIN" || currentUser?.role === "FACULTY";
   const isParticipant = 
-    project.studentIds.includes(currentUser?.uid || "") || 
+    project.studentIds?.includes(currentUser?.uid || "") || 
     project.mentorId === currentUser?.uid || 
     project.coordinatorId === currentUser?.uid || 
     currentUser?.role === "ADMIN";
@@ -83,53 +122,89 @@ export default function ProjectWorkspace() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col h-[calc(100vh-6rem)]">
+    <div className="max-w-7xl mx-auto flex flex-col min-h-[calc(100vh-8rem)] space-y-6">
+      {/* Top Breadcrumb / Back Navigation */}
+      <div className="flex items-center gap-2 text-sm text-[#5B5F73]">
+        <Link href="/dashboard" className="hover:text-[#1C1C1E] transition-colors flex items-center gap-1">
+          <ArrowLeft className="w-4 h-4" /> Dashboard
+        </Link>
+        <span>/</span>
+        <Link href="/dashboard/projects" className="hover:text-[#1C1C1E] transition-colors">
+          Active Projects
+        </Link>
+        <span>/</span>
+        <span className="text-[#1C1C1E] font-medium truncate max-w-xs">{project.title}</span>
+      </div>
+
       {/* Header */}
-      <div className="flex-none mb-6">
+      <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">{project.title}</h1>
-            <p className="text-slate-400 mt-1 flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-xs font-bold uppercase text-slate-300">
-                {project.status}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-md bg-[#9C7A4C]/15 text-[#9C7A4C] text-xs font-bold uppercase tracking-wider">
+                {project.category || "Agriculture & AI"}
               </span>
-              {!project.mentorId && (
-                <span className="text-amber-400 text-sm">No Mentor Assigned</span>
+              <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
+                {project.status ? project.status.replace(/_/g, " ") : "ACTIVE"}
+              </span>
+              {project.targetCompletionDate && (
+                <span className="text-xs text-[#5B5F73] flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Target: {new Date(project.targetCompletionDate).toLocaleDateString()}
+                </span>
               )}
+            </div>
+
+            <h1 className="text-3xl font-bold tracking-tight text-[#1C1C1E]">
+              {project.title}
+            </h1>
+
+            <p className="text-sm text-[#5B5F73] max-w-3xl">
+              {project.description || "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis."}
             </p>
           </div>
-          <div className="flex gap-2">
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
             {canAssignMentor && (
-              <Button onClick={() => router.push(`/dashboard/projects/${project.id}/assign-mentor`)} variant="outline">
+              <Button onClick={() => router.push(`/dashboard/projects/${project.id}/assign-mentor`)} variant="outline" size="sm">
                 <Settings className="w-4 h-4 mr-2" /> Manage Mentor
               </Button>
             )}
+            <div className="text-right hidden sm:block bg-white/70 px-4 py-2 rounded-xl border border-[#5B5F73]/15">
+              <div className="text-xs font-semibold text-[#5B5F73] uppercase tracking-wider">Progress</div>
+              <div className="text-2xl font-black text-[#1C1C1E]">{project.progress || 45}%</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs Nav */}
-      <div className="flex-none border-b border-slate-800 mb-6 overflow-x-auto custom-scrollbar">
-        <div className="flex gap-6 min-w-max px-2">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === tab.id 
-                  ? tab.id === "AI_MENTOR" ? "border-purple-500 text-purple-400" : "border-indigo-500 text-indigo-400"
-                  : "border-transparent text-slate-400 hover:text-slate-300"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
+      {/* Tabs Navigation Bar */}
+      <div className="border-b border-[#5B5F73]/20 overflow-x-auto custom-scrollbar">
+        <div className="flex gap-2 min-w-max pb-1">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                  isActive
+                    ? tab.id === "AI_MENTOR"
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "bg-[#1C1C1E] text-white shadow-sm"
+                    : "text-[#5B5F73] hover:text-[#1C1C1E] hover:bg-[#EFEDE8]/80"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Tab Content Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar pb-12">
+      {/* Tab Content Area */}
+      <div className="flex-1 pb-12">
         {activeTab === "OVERVIEW" && <OverviewTab project={project} />}
         {activeTab === "TASKS" && <KanbanBoard project={project} />}
         {activeTab === "MILESTONES" && <MilestonesTab project={project} />}

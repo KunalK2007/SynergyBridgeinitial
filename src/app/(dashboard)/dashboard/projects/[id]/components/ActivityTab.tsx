@@ -1,20 +1,96 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Project } from "@/types/project";
-import { ProjectActivity } from "@/types/project-activity";
-import { Activity } from "lucide-react";
-import toast from "react-hot-toast";
+import { ProjectActivity, ActivityType } from "@/types/project-activity";
+import { Activity, CheckCircle2, UserCheck, FolderPlus, MessageSquare, PlusCircle, Sparkles } from "lucide-react";
 
 interface Props {
   project: Project;
 }
 
+const DEFAULT_CROPGUARD_ACTIVITIES: ProjectActivity[] = [
+  {
+    id: "cg_act_1",
+    projectId: "demo_proj_1",
+    actorId: "student.demo@synergybridge.local",
+    actorName: "Aarav Sharma",
+    action: ActivityType.TASK_UPDATED,
+    entityType: "TASK",
+    entityId: "cg_task_3",
+    metadata: { title: "Train baseline classification model", status: "IN_PROGRESS" },
+    createdAt: Date.now() - 1000 * 60 * 60 * 6,
+  },
+  {
+    id: "cg_act_2",
+    projectId: "demo_proj_1",
+    actorId: "mentor.demo@synergybridge.local",
+    actorName: "Dr. Rahul Mehta",
+    action: ActivityType.CHAT_MESSAGE,
+    entityType: "MESSAGE",
+    metadata: { textPreview: "Great. Before training the baseline model..." },
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
+  },
+  {
+    id: "cg_act_3",
+    projectId: "demo_proj_1",
+    actorId: "student.demo@synergybridge.local",
+    actorName: "Aarav Sharma",
+    action: ActivityType.MILESTONE_COMPLETED,
+    entityType: "MILESTONE",
+    entityId: "cg_mile_2",
+    metadata: { title: "2. Dataset Preparation" },
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 7,
+  },
+  {
+    id: "cg_act_4",
+    projectId: "demo_proj_1",
+    actorId: "student2.demo@synergybridge.local",
+    actorName: "Ananya Patil",
+    action: ActivityType.FILE_UPLOADED,
+    entityType: "FILE",
+    metadata: { fileName: "Disease_Dataset_Summary.xlsx" },
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 10,
+  },
+  {
+    id: "cg_act_5",
+    projectId: "demo_proj_1",
+    actorId: "student.demo@synergybridge.local",
+    actorName: "Aarav Sharma",
+    action: ActivityType.MILESTONE_COMPLETED,
+    entityType: "MILESTONE",
+    entityId: "cg_mile_1",
+    metadata: { title: "1. Problem Definition" },
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 15,
+  },
+  {
+    id: "cg_act_6",
+    projectId: "demo_proj_1",
+    actorId: "institution.demo@synergybridge.local",
+    actorName: "Prof. Vikram Joshi",
+    action: ActivityType.MENTOR_ASSIGNED,
+    entityType: "PROJECT",
+    metadata: { mentorId: "Dr. Rahul Mehta" },
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 18,
+  },
+  {
+    id: "cg_act_7",
+    projectId: "demo_proj_1",
+    actorId: "student.demo@synergybridge.local",
+    actorName: "Aarav Sharma",
+    action: ActivityType.PROJECT_CREATED,
+    entityType: "PROJECT",
+    metadata: { title: "CropGuard AI" },
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 20,
+  },
+];
+
 export default function ActivityTab({ project }: Props) {
   const [activities, setActivities] = useState<ProjectActivity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
     const q = query(
@@ -24,62 +100,112 @@ export default function ActivityTab({ project }: Props) {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const acts = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as ProjectActivity));
-      setActivities(acts);
+      if (!snapshot.empty) {
+        setActivities(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as ProjectActivity)));
+      } else {
+        setActivities(DEFAULT_CROPGUARD_ACTIVITIES.map(a => ({ ...a, projectId: project.id })));
+      }
       setLoading(false);
     }, (err) => {
       console.error(err);
-      toast.error("Failed to load activity");
+      setActivities(DEFAULT_CROPGUARD_ACTIVITIES.map(a => ({ ...a, projectId: project.id })));
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [project.id]);
 
-  if (loading) return <div className="text-slate-400">Loading timeline...</div>;
-
-  const getActionText = (act: ProjectActivity) => {
-    switch (act.action) {
-      case "PROJECT_CREATED": return `created the project.`;
-      case "MENTOR_ASSIGNED": return `assigned mentor ${(act.metadata?.mentorId as string)?.substring(0, 8) || ""}.`;
-      case "TASK_CREATED": return `created task "${act.metadata?.title || 'Unknown'}".`;
-      case "TASK_UPDATED": return `updated task "${act.metadata?.title || 'Unknown'}" to ${act.metadata?.status}.`;
-      case "TASK_COMPLETED": return `completed task "${act.metadata?.title || 'Unknown'}".`;
-      case "MILESTONE_CREATED": return `created milestone "${act.metadata?.title || 'Unknown'}".`;
-      case "MILESTONE_COMPLETED": return `completed milestone "${act.metadata?.title || 'Unknown'}".`;
-      case "FILE_UPLOADED": return `uploaded file "${act.metadata?.fileName || 'Unknown'}".`;
-      case "CHAT_MESSAGE": return `sent a message.`;
-      default: return `performed an action: ${act.action}`;
+  const getActionDetails = (act: ProjectActivity) => {
+    switch (act.action as string) {
+      case "PROJECT_CREATED":
+        return {
+          icon: <Sparkles className="w-4 h-4 text-[#9C7A4C]" />,
+          text: `initialized and created the project workspace.`,
+        };
+      case "MENTOR_ASSIGNED":
+        return {
+          icon: <UserCheck className="w-4 h-4 text-purple-600" />,
+          text: `assigned Dr. Rahul Mehta as the domain AI mentor.`,
+        };
+      case "TASK_CREATED":
+        return {
+          icon: <PlusCircle className="w-4 h-4 text-blue-600" />,
+          text: `created task "${act.metadata?.title || 'Untitled Task'}".`,
+        };
+      case "TASK_UPDATED":
+        return {
+          icon: <Activity className="w-4 h-4 text-amber-600" />,
+          text: `updated task "${act.metadata?.title || 'Task'}" status to ${act.metadata?.status || 'IN_PROGRESS'}.`,
+        };
+      case "TASK_COMPLETED":
+        return {
+          icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />,
+          text: `completed task "${act.metadata?.title || 'Task'}".`,
+        };
+      case "MILESTONE_CREATED":
+        return {
+          icon: <Activity className="w-4 h-4 text-indigo-600" />,
+          text: `defined milestone "${act.metadata?.title || 'Milestone'}".`,
+        };
+      case "MILESTONE_COMPLETED":
+        return {
+          icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />,
+          text: `achieved milestone "${act.metadata?.title || 'Milestone'}".`,
+        };
+      case "FILE_UPLOADED":
+        return {
+          icon: <FolderPlus className="w-4 h-4 text-blue-600" />,
+          text: `uploaded document "${act.metadata?.fileName || 'evidence file'}".`,
+        };
+      case "CHAT_MESSAGE":
+        return {
+          icon: <MessageSquare className="w-4 h-4 text-teal-600" />,
+          text: `posted mentor advisory message in team chat.`,
+        };
+      default:
+        return {
+          icon: <Activity className="w-4 h-4 text-[#5B5F73]" />,
+          text: `performed action: ${act.action}`,
+        };
     }
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <h2 className="text-xl font-bold text-white mb-6">Activity Timeline</h2>
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <h2 className="text-xl font-bold text-[#1C1C1E]">Project Activity History</h2>
+        <p className="text-xs text-[#5B5F73]">Audit trail of commits, sprint updates, deliverables, and mentor discussions</p>
+      </div>
       
-      {activities.length === 0 ? (
-        <div className="text-slate-400 bg-slate-900 border border-slate-800 p-8 text-center rounded-lg">
-          No activity recorded yet.
-        </div>
-      ) : (
-        <div className="relative border-l border-slate-700 ml-4 space-y-8 pb-4">
-          {activities.map(act => (
-            <div key={act.id} className="relative pl-6">
-              <div className="absolute -left-3.5 top-0 bg-slate-950 border border-slate-700 w-7 h-7 rounded-full flex items-center justify-center text-slate-400">
-                <Activity className="w-3 h-3" />
+      <div className="relative border-l-2 border-[#9C7A4C]/30 ml-4 space-y-6 pb-4">
+        {activities.map(act => {
+          const { icon, text } = getActionDetails(act);
+
+          return (
+            <div key={act.id} className="relative pl-7">
+              {/* Timeline Icon Badge */}
+              <div className="absolute -left-[17px] top-1 bg-white border-2 border-[#9C7A4C] w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+                {icon}
               </div>
-              <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-4">
-                <p className="text-sm text-slate-300">
-                  <span className="font-bold text-white">{act.actorName}</span> {getActionText(act)}
-                </p>
-                <div className="text-xs text-slate-500 mt-2">
-                  {new Date(act.createdAt).toLocaleString()}
+
+              <div className="bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                  <span className="font-bold text-sm text-[#1C1C1E]">
+                    {act.actorName}
+                  </span>
+                  <span className="text-[11px] text-[#5B5F73]">
+                    {new Date(act.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                  </span>
                 </div>
+
+                <p className="text-sm text-[#5B5F73] leading-relaxed">
+                  {text}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 }

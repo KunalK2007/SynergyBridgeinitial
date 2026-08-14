@@ -2,12 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
-import { auth, db } from "@/lib/firebase/client";
+import { db } from "@/lib/firebase/client";
 import { collection, query, where, getDocs, addDoc, onSnapshot, orderBy, setDoc, doc } from "firebase/firestore";
 import { Project } from "@/types/project";
 import { MentorMessage } from "@/types/ai-mentor";
 import { Button } from "@/components/ui/Button";
-import { Send, Bot, User, AlertCircle, Loader2 } from "lucide-react";
+import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface Props {
   project: Project;
@@ -26,29 +27,33 @@ export default function AIMentorTab({ project }: Props) {
     if (!currentUser || currentUser.role !== "STUDENT") return;
 
     const loadConversation = async () => {
-      const q = query(
-        collection(db, "mentorConversations"), 
-        where("studentId", "==", currentUser.uid),
-        where("projectId", "==", project.id)
-      );
-      const snap = await getDocs(q);
-      
-      let convId = null;
-      if (snap.empty) {
-        const newConvRef = doc(collection(db, "mentorConversations"));
-        await setDoc(newConvRef, {
-          projectId: project.id,
-          studentId: currentUser.uid,
-          title: "Project Mentor Chat",
-          status: "ACTIVE",
-          createdAt: Date.now(),
-          updatedAt: Date.now()
-        });
-        convId = newConvRef.id;
-      } else {
-        convId = snap.docs[0].id;
+      try {
+        const q = query(
+          collection(db, "mentorConversations"), 
+          where("studentId", "==", currentUser.uid),
+          where("projectId", "==", project.id)
+        );
+        const snap = await getDocs(q);
+        
+        let convId = null;
+        if (snap.empty) {
+          const newConvRef = doc(collection(db, "mentorConversations"));
+          await setDoc(newConvRef, {
+            projectId: project.id,
+            studentId: currentUser.uid,
+            title: "Project Mentor Chat",
+            status: "ACTIVE",
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          });
+          convId = newConvRef.id;
+        } else {
+          convId = snap.docs[0].id;
+        }
+        setConversationId(convId);
+      } catch (err) {
+        console.error("Failed to load mentor conversation", err);
       }
-      setConversationId(convId);
     };
     
     loadConversation();
@@ -134,7 +139,7 @@ export default function AIMentorTab({ project }: Props) {
 
     } catch (err) {
       console.error(err);
-      alert("Failed to get AI response. Check rate limits or connection.");
+      toast.error("Failed to get AI response. Check rate limits or connection.");
     } finally {
       setLoading(false);
     }
@@ -157,85 +162,107 @@ export default function AIMentorTab({ project }: Props) {
          const data = await res.json();
          throw new Error(data.error || "Failed to escalate");
       }
-      alert("Help request sent to your human mentor.");
+      toast.success("Help request sent to your human mentor Dr. Rahul Mehta.");
     } catch (err: unknown) {
-      alert((err as Error).message || "Failed to escalate");
+      toast.error((err as Error).message || "Failed to escalate");
     } finally {
       setEscalating(false);
     }
   };
 
   if (!currentUser || currentUser.role !== "STUDENT") {
-    return <div className="text-slate-400 p-8 text-center">AI Mentor is only available for students.</div>;
+    return <div className="text-[#5B5F73] p-8 text-center bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-xl">AI Mentor is only available for student workspace members.</div>;
   }
 
   return (
-    <div className="flex flex-col h-[600px] border border-slate-800 rounded-lg overflow-hidden bg-slate-900/50">
-      <div className="bg-slate-900 p-4 border-b border-slate-800 flex justify-between items-center">
-         <h3 className="text-white font-medium flex items-center gap-2">
-           <Bot className="w-5 h-5 text-indigo-400" /> AI Workspace Mentor
-         </h3>
+    <div className="flex flex-col h-[580px] border border-[#5B5F73]/20 rounded-2xl overflow-hidden bg-[#EFEDE8] shadow-sm">
+      <div className="bg-white/80 p-4 border-b border-[#5B5F73]/15 flex justify-between items-center">
+         <div>
+           <h3 className="text-[#1C1C1E] font-bold flex items-center gap-2">
+             <Bot className="w-5 h-5 text-[#9C7A4C]" /> AI Workspace Mentor
+           </h3>
+           <p className="text-xs text-[#5B5F73]">24/7 technical guidance on model architecture, data preprocessing, and evaluation</p>
+         </div>
          <Button 
            variant="outline" 
            size="sm" 
            onClick={handleEscalate} 
            disabled={escalating}
-           className="border-rose-500/50 text-rose-400 hover:bg-rose-500/10"
+           className="border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold"
          >
-           {escalating ? "Requesting..." : "Request Mentor Help"}
+           {escalating ? "Requesting..." : "Request Human Mentor"}
          </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-slate-500">
-              <Bot className="w-10 h-10 mb-3 opacity-50" />
-              <p className="text-sm">Ask a question about this project&apos;s tasks, milestones, or your skill gaps.</p>
+            <div className="h-full flex flex-col items-center justify-center text-[#5B5F73] text-center max-w-md mx-auto">
+              <div className="w-12 h-12 rounded-full bg-[#9C7A4C]/15 flex items-center justify-center mb-3 text-[#9C7A4C]">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h4 className="font-bold text-[#1C1C1E] mb-1">CropGuard AI Assistant</h4>
+              <p className="text-xs text-[#5B5F73]">Ask a technical question about your dataset balance, MobileNet layers, or evaluation metrics.</p>
             </div>
           ) : (
             messages.map((m) => (
               <div key={m.id} className={`flex gap-3 ${m.role === "STUDENT" ? "justify-end" : "justify-start"}`}>
-                {m.role === "AI" && <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0"><Bot className="w-4 h-4"/></div>}
+                {m.role === "AI" && (
+                  <div className="w-8 h-8 rounded-full bg-[#9C7A4C]/15 flex items-center justify-center text-[#9C7A4C] shrink-0">
+                    <Bot className="w-4 h-4"/>
+                  </div>
+                )}
                 
-                <div className={`max-w-[80%] rounded-xl p-3 ${
-                  m.role === "STUDENT" ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-200 border border-slate-700"
+                <div className={`max-w-[80%] rounded-2xl p-3.5 shadow-sm ${
+                  m.role === "STUDENT" 
+                    ? "bg-[#1C1C1E] text-white rounded-tr-none" 
+                    : "bg-white text-[#1C1C1E] border border-[#5B5F73]/15 rounded-tl-none"
                 }`}>
-                  <div className="whitespace-pre-wrap text-sm">{String(m.content)}</div>
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">{String(m.content)}</div>
                   
                   {m.role === "AI" && m.metadata && m.metadata.escalationRecommended === true && (
-                    <div className="mt-3 pt-3 border-t border-slate-700/50">
-                       <Button size="sm" variant="outline" className="w-full border-rose-500/30 text-rose-400 hover:bg-rose-500/10 h-7 text-xs" onClick={handleEscalate} disabled={escalating}>
-                         Request Mentor Help
+                    <div className="mt-3 pt-3 border-t border-[#5B5F73]/15">
+                       <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full border-rose-300 text-rose-700 hover:bg-rose-50 h-7 text-xs font-semibold" 
+                        onClick={handleEscalate} 
+                        disabled={escalating}
+                       >
+                         Request Human Mentor Help
                        </Button>
                     </div>
                   )}
                 </div>
 
-                {m.role === "STUDENT" && <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-slate-300 shrink-0"><User className="w-4 h-4"/></div>}
+                {m.role === "STUDENT" && (
+                  <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0">
+                    <User className="w-4 h-4"/>
+                  </div>
+                )}
               </div>
             ))
           )}
           {loading && (
              <div className="flex gap-3 justify-start">
-               <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0"><Bot className="w-4 h-4"/></div>
-               <div className="bg-slate-800 rounded-xl p-3 flex items-center gap-2 text-slate-400 text-sm">
-                 <Loader2 className="w-4 h-4 animate-spin" /> Thinking...
+               <div className="w-8 h-8 rounded-full bg-[#9C7A4C]/15 flex items-center justify-center text-[#9C7A4C] shrink-0"><Bot className="w-4 h-4"/></div>
+               <div className="bg-white rounded-2xl p-3 flex items-center gap-2 text-[#5B5F73] text-sm border border-[#5B5F73]/15">
+                 <Loader2 className="w-4 h-4 animate-spin text-[#9C7A4C]" /> Analyzing query...
                </div>
              </div>
           )}
       </div>
 
-      <div className="p-3 border-t border-slate-800 bg-slate-900">
+      <div className="p-3.5 border-t border-[#5B5F73]/15 bg-white">
          <form onSubmit={handleSend} className="flex gap-2">
            <input
              type="text"
              value={input}
              onChange={(e) => setInput(e.target.value)}
-             placeholder="Ask about this project..."
+             placeholder="Ask about this project's tasks, algorithms, or ML pipelines..."
              disabled={loading}
-             className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+             className="flex-1 bg-[#EFEDE8] border border-[#5B5F73]/20 rounded-xl px-4 py-2 text-sm text-[#1C1C1E] focus:outline-none focus:border-[#9C7A4C] disabled:opacity-50"
            />
-           <Button type="submit" disabled={!input.trim() || loading} size="icon" className="bg-indigo-600 hover:bg-indigo-500 text-white w-9 h-9">
+           <Button type="submit" disabled={!input.trim() || loading} size="icon" className="bg-[#1C1C1E] hover:bg-black text-white w-9 h-9 rounded-xl">
              <Send className="w-4 h-4" />
            </Button>
          </form>

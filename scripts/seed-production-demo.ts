@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Phase 4D - Production Seed Demo
  * 
@@ -16,6 +17,10 @@ import { ProjectStatus, Project } from '../src/types/project';
 import { Task, TaskStatus, TaskPriority } from '../src/types/task';
 import { Milestone, MilestoneStatus } from '../src/types/milestone';
 import { GamificationProfile } from '../src/types/gamification';
+import { ProjectMessage } from '../src/types/project-message';
+import { ProjectFile, FileCategory } from '../src/types/project-file';
+import { ProjectActivity } from '../src/types/project-activity';
+import { FundingGrant, FundingStatus } from '../src/types/funding';
 
 if (process.env.NODE_ENV === 'production' && process.env.ENABLE_PRODUCTION_SEED !== 'true') {
   console.error("🚨 ERROR: Attempted to run demo seed in production without explicit override.");
@@ -46,13 +51,13 @@ const DEMO_ACCOUNTS = [
     name: "Neha Deshmukh",
     email: "reviewer.demo@synergybridge.local",
     password: "SBReviewer@2026!",
-    role: UserRole.INDUSTRY // Proxies REVIEWER in this architecture
+    role: UserRole.INDUSTRY
   },
   {
     name: "Prof. Vikram Joshi",
     email: "institution.demo@synergybridge.local",
     password: "SBInstitution@2026!",
-    role: UserRole.FACULTY // Proxies INSTITUTION_ADMIN
+    role: UserRole.FACULTY
   },
   {
     name: "Priya Kulkarni",
@@ -120,7 +125,6 @@ async function seedProductionDemo() {
       userData.institutionId = demoInstitutionId;
     }
     
-    // Using any for isDemo as it's an extended field
     await usersRef.doc(uid).set({ ...userData, isDemo: true }, { merge: true });
 
     // Profile generation
@@ -128,28 +132,33 @@ async function seedProductionDemo() {
       await adminDb.collection('studentProfiles').doc(uid).set({
         userId: uid,
         institutionId: demoInstitutionId,
-        department: "Computer Science",
+        department: "Computer Science & AI",
         course: "B.Tech",
         year: 3,
-        skills: [{ skillId: "js1", name: "JavaScript", category: "Programming", level: SkillLevel.ADVANCED }],
-        interests: ["AI", "Web Development"],
-        preferredDomains: ["Technology"],
+        skills: [
+          { skillId: "sk_python", name: "Python", category: "Programming", level: SkillLevel.ADVANCED },
+          { skillId: "sk_pytorch", name: "PyTorch", category: "AI/ML", level: SkillLevel.INTERMEDIATE },
+          { skillId: "sk_cv", name: "Computer Vision", category: "AI/ML", level: SkillLevel.INTERMEDIATE },
+          { skillId: "sk_ts", name: "TypeScript", category: "Web Development", level: SkillLevel.ADVANCED }
+        ],
+        interests: ["Edge AI", "AgriTech", "Computer Vision"],
+        preferredDomains: ["Agriculture & AI", "Technology"],
         shareResumeWithApplicants: true
       }, { merge: true });
       
       // Init gamification profile
       await adminDb.collection("gamificationProfiles").doc(uid).set({
         userId: uid,
-        xp: 1500,
-        level: 5,
-        lifetimeXp: 1500,
-        currentStreak: 5,
-        longestStreak: 12,
-        totalProjectsCompleted: 2,
-        totalTasksCompleted: 15,
-        totalMilestonesCompleted: 4,
-        totalProblemsSolved: 2,
-        totalAchievements: 5,
+        xp: 1850,
+        level: 6,
+        lifetimeXp: 1850,
+        currentStreak: 7,
+        longestStreak: 14,
+        totalProjectsCompleted: 1,
+        totalTasksCompleted: 18,
+        totalMilestonesCompleted: 6,
+        totalProblemsSolved: 3,
+        totalAchievements: 6,
         showOnLeaderboard: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -158,9 +167,9 @@ async function seedProductionDemo() {
     } else if (account.role === UserRole.MENTOR) {
       await adminDb.collection('mentorProfiles').doc(uid).set({
         userId: uid,
-        expertiseAreas: ["AI", "Cloud Architecture"],
-        organization: "SynergyBridge Demo Institute",
-        availability: "Weekends"
+        expertiseAreas: ["Agricultural AI", "Edge Deep Learning", "Cloud Architecture"],
+        organization: "Agricultural AI Research Labs",
+        availability: "Weekdays & Weekends"
       }, { merge: true });
     }
   }
@@ -193,15 +202,6 @@ async function seedProductionDemo() {
       updatedAt: now,
       isDemo: true
     }, { merge: true });
-    
-    await adminDb.collection('studentProfiles').doc(syntheticUid).set({
-      userId: syntheticUid,
-      institutionId: demoInstitutionId,
-      skills: [],
-      interests: [],
-      preferredDomains: [],
-      shareResumeWithApplicants: false
-    }, { merge: true });
   }
 
   console.log("✅ Seeded users and profiles");
@@ -210,39 +210,77 @@ async function seedProductionDemo() {
   const problemsRef = adminDb.collection('problems');
   const primaryPosterId = userUIDs["reviewer.demo@synergybridge.local"];
   
-  const problemTitles = [
-    "Smart Traffic Management", "AI Crop Disease Detection", "Cybersecurity Threat Monitoring",
-    "Hospital Resource Optimization", "Smart Waste Management", "Renewable Energy Optimization",
-    "Rural Education Platform", "Supply Chain Prediction"
+  const problemsList = [
+    {
+      id: "demo_prob_1",
+      title: "AI Crop Disease Detection",
+      domain: "Agriculture & AI",
+      shortDescription: "An AI-assisted crop monitoring platform to detect disease and crop stress early.",
+      problemStatement: "Smallholder farmers experience significant crop yield losses due to late or inaccurate diagnosis of fungal and bacterial leaf blights in regional farmlands.",
+      whyItMatters: "Early and accessible mobile detection safeguards food security and farmer livelihood.",
+      expectedOutcome: "A deployable low-latency edge AI model and farmer advisory mobile interface with >90% diagnosis accuracy.",
+    },
+    {
+      id: "demo_prob_2",
+      title: "Smart Traffic Management System",
+      domain: "Smart Cities & IoT",
+      shortDescription: "Optimize urban traffic signal timing dynamically using edge vision sensors.",
+      problemStatement: "Urban intersections face heavy congestion and emergency vehicle delays due to rigid static signal cycles.",
+      whyItMatters: "Dynamic signal coordination reduces carbon emissions and improves transit efficiency.",
+      expectedOutcome: "Edge IoT vision prototype that dynamically adjusts green light timing based on real-time vehicle density.",
+    },
+    {
+      id: "demo_prob_3",
+      title: "Hospital Resource Optimization",
+      domain: "Healthcare",
+      shortDescription: "Predictive ICU bed allocation and medical equipment tracking.",
+      problemStatement: "Emergency rooms experience severe delays when allocating specialized ICU equipment.",
+      whyItMatters: "Timely ICU bed allocation directly impacts patient survival rates.",
+      expectedOutcome: "Predictive scheduling system with queue optimization algorithms.",
+    },
+    {
+      id: "demo_prob_4",
+      title: "Renewable Energy Grid Balancing",
+      domain: "Clean Energy",
+      shortDescription: "Predict solar panel yield and automatically balance microgrid loads.",
+      problemStatement: "Variable solar output creates microgrid fluctuations in rural community microgrids.",
+      whyItMatters: "Stable microgrids ensure reliable clean power for rural health clinics and schools.",
+      expectedOutcome: "Time-series forecasting model coupled with battery discharge automation.",
+    }
   ];
-  
-  const problemIds = problemTitles.map((title, i) => `demo_prob_${i + 1}`);
 
-  for (let i = 0; i < problemTitles.length; i++) {
+  for (const p of problemsList) {
     const prob: Problem = {
-      id: problemIds[i],
-      title: problemTitles[i],
-      shortDescription: `A synthetic demo problem for ${problemTitles[i]}.`,
-      problemStatement: `Develop a solution to tackle the core issues associated with ${problemTitles[i]} using modern technology.`,
-      whyItMatters: "Important for demo showcasing.",
-      expectedOutcome: "A working prototype.",
-      successCriteria: ["Accuracy > 90%", "Latency < 200ms"],
-      domain: "Technology",
+      id: p.id,
+      title: p.title,
+      shortDescription: p.shortDescription,
+      problemStatement: p.problemStatement,
+      whyItMatters: p.whyItMatters,
+      expectedOutcome: p.expectedOutcome,
+      successCriteria: ["Accuracy > 90%", "Inference Latency < 200ms", "Zero false-negative for critical conditions"],
+      domain: p.domain,
       problemType: ProblemType.INDUSTRY,
       difficulty: DifficultyLevel.INTERMEDIATE,
-      skills: [],
-      tags: ["demo", "synthetic"],
-      sdgs: [9, 11],
-      targetBeneficiaries: ["Public"],
+      skills: [
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_cv", name: "Computer Vision", category: "AI/ML", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ],
+      tags: ["agriculture", "ai", "computer-vision", "edge-computing"],
+      sdgs: [2, 9, 12],
+      targetBeneficiaries: ["Smallholder farmers", "Rural agriculture cooperatives"],
       geographicScope: GeographicScope.NATIONAL,
       constraints: [],
-      teamPreference: TeamPreference.ANY,
+      teamPreference: TeamPreference.SMALL_TEAM,
+      minTeamSize: 2,
+      maxTeamSize: 4,
+      estimatedDurationWeeks: 12,
       status: ProblemStatus.PUBLISHED,
       visibility: "PUBLIC",
       posterId: primaryPosterId,
       posterRole: UserRole.INDUSTRY,
+      organizationName: "AgriTech Innovation Council",
       verificationStatus: VerificationStatus.VERIFIED,
-      createdAt: now,
+      createdAt: now - 1000 * 60 * 60 * 24 * 30,
       updatedAt: now
     };
     await problemsRef.doc(prob.id).set(prob, { merge: true });
@@ -254,142 +292,461 @@ async function seedProductionDemo() {
   const appsRef = adminDb.collection('applications');
   const student1Id = userUIDs["student.demo@synergybridge.local"];
   const student2Id = userUIDs["student2.demo@synergybridge.local"];
+  const mentorId = userUIDs["mentor.demo@synergybridge.local"];
   
   const app1: Application = {
     id: "demo_app_1",
-    problemId: problemIds[0],
+    problemId: "demo_prob_1",
     applicantId: student1Id,
-    proposal: "We will build a smart traffic management system using computer vision.",
-    motivation: "Highly interested in CV.",
+    proposal: "Developing CropGuard AI: An edge-deployable deep learning mobile model for crop stress and disease diagnosis.",
+    motivation: "Passionate about combining edge neural networks and local agriculture solutions.",
     status: ApplicationStatus.ACCEPTED,
-    createdAt: now,
-    updatedAt: now
+    createdAt: now - 1000 * 60 * 60 * 24 * 22,
+    updatedAt: now - 1000 * 60 * 60 * 24 * 20
   };
   await appsRef.doc(app1.id).set(app1, { merge: true });
-  
-  const app2: Application = {
-    id: "demo_app_2",
-    problemId: problemIds[1],
-    applicantId: student2Id,
-    proposal: "Using CNNs to detect crop disease.",
-    motivation: "Farming background.",
-    status: ApplicationStatus.UNDER_REVIEW,
-    createdAt: now,
-    updatedAt: now
-  };
-  await appsRef.doc(app2.id).set(app2, { merge: true });
 
-  console.log("✅ Seeded applications");
-
-  // 5. Create Projects, Workspaces, Gamification, and Certificates
+  // 5. Create Active Project (CropGuard AI)
   const projectsRef = adminDb.collection('projects');
-  const mentorId = userUIDs["mentor.demo@synergybridge.local"];
 
-  // Active Project (Smart Traffic)
   const proj1: Project = {
     id: "demo_proj_1",
-    problemId: problemIds[0],
+    problemId: "demo_prob_1",
     applicationId: "demo_app_1",
-    studentIds: [student1Id],
+    studentIds: [student1Id, student2Id],
     mentorId: mentorId,
-    title: "Smart Traffic Management Implementation",
+    title: "CropGuard AI",
+    description: "An AI-assisted crop monitoring platform that helps farmers identify crop stress and potential disease earlier using image-based analysis.",
+    category: "Agriculture & AI",
+    keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
     status: ProjectStatus.IN_PROGRESS,
-    progress: 50,
-    startDate: now,
-    createdAt: now,
+    progress: 45,
+    startDate: now - 1000 * 60 * 60 * 24 * 20,
+    targetCompletionDate: now + 1000 * 60 * 60 * 24 * 45,
+    createdAt: now - 1000 * 60 * 60 * 24 * 20,
     updatedAt: now
   };
   await projectsRef.doc(proj1.id).set(proj1, { merge: true });
 
-  // Workspace: Tasks and Milestones for Proj 1
-  const t1: Task = { id: "demo_task_1", projectId: proj1.id, title: "Data Collection", status: TaskStatus.DONE, priority: TaskPriority.HIGH, createdBy: student1Id, createdAt: now, updatedAt: now };
-  const t2: Task = { id: "demo_task_2", projectId: proj1.id, title: "Model Training", status: TaskStatus.IN_PROGRESS, priority: TaskPriority.HIGH, createdBy: student1Id, createdAt: now, updatedAt: now };
-  await projectsRef.doc(proj1.id).collection('tasks').doc(t1.id).set(t1, { merge: true });
-  await projectsRef.doc(proj1.id).collection('tasks').doc(t2.id).set(t2, { merge: true });
+  // 6. Seed Tasks for CropGuard AI
+  const tasksList: Task[] = [
+    {
+      id: "cg_task_1",
+      projectId: proj1.id,
+      title: "Define crop disease dataset",
+      description: "Catalogued 4,200 labeled field images covering tomato and potato leaf blights with localized labels.",
+      status: TaskStatus.DONE,
+      priority: TaskPriority.HIGH,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 15,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 10,
+      completedAt: now - 1000 * 60 * 60 * 24 * 10,
+    },
+    {
+      id: "cg_task_2",
+      projectId: proj1.id,
+      title: "Prepare image preprocessing pipeline",
+      description: "Built augmentations, histogram normalization, and TFRecord conversion scripts for mobile input.",
+      status: TaskStatus.DONE,
+      priority: TaskPriority.HIGH,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 12,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 7,
+      completedAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+    {
+      id: "cg_task_3",
+      projectId: proj1.id,
+      title: "Train baseline classification model",
+      description: "Benchmarking MobileNetV3 and EfficientNet-B0 architectures for edge inference accuracy.",
+      status: TaskStatus.IN_PROGRESS,
+      priority: TaskPriority.HIGH,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 6,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 1,
+    },
+    {
+      id: "cg_task_4",
+      projectId: proj1.id,
+      title: "Build farmer dashboard",
+      description: "Designing simple high-contrast diagnosis screen with multilingual voice prompts and treatment cards.",
+      status: TaskStatus.IN_PROGRESS,
+      priority: TaskPriority.MEDIUM,
+      createdBy: student2Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 5,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 2,
+    },
+    {
+      id: "cg_task_5",
+      projectId: proj1.id,
+      title: "Integrate model inference API",
+      description: "Export ONNX models and set up quantized microservice endpoints with sub-150ms response latency.",
+      status: TaskStatus.REVIEW,
+      priority: TaskPriority.HIGH,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 4,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 1,
+    },
+    {
+      id: "cg_task_6",
+      projectId: proj1.id,
+      title: "Conduct field validation",
+      description: "Test diagnosis accuracy directly on live farm crops across 3 regional test partner plots.",
+      status: TaskStatus.TODO,
+      priority: TaskPriority.MEDIUM,
+      createdBy: student2Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 3,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 3,
+    },
+    {
+      id: "cg_task_7",
+      projectId: proj1.id,
+      title: "Prepare final project report",
+      description: "Compile empirical evaluation matrices, user feedback logs, and deployment documentation.",
+      status: TaskStatus.TODO,
+      priority: TaskPriority.LOW,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 2,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 2,
+    },
+  ];
 
-  const m1: Milestone = { id: "demo_mile_1", projectId: proj1.id, title: "Phase 1: Data", description: "Collect dataset.", targetDate: now, status: MilestoneStatus.COMPLETED, completionPercentage: 100, createdBy: student1Id, createdAt: now, updatedAt: now };
-  await projectsRef.doc(proj1.id).collection('milestones').doc(m1.id).set(m1, { merge: true });
+  for (const t of tasksList) {
+    await adminDb.collection('tasks').doc(t.id).set(t, { merge: true });
+    await projectsRef.doc(proj1.id).collection('tasks').doc(t.id).set(t, { merge: true });
+  }
 
-  // Completed Project (CropGuard AI) to demonstrate Certificates & Funding
-  const proj2: Project = {
-    id: "demo_proj_2",
-    problemId: problemIds[1],
-    applicationId: "demo_app_legacy",
-    studentIds: [student1Id, student2Id],
-    mentorId: mentorId,
-    title: "CropGuard AI Complete",
-    status: ProjectStatus.COMPLETED,
-    progress: 100,
-    startDate: now - 86400000 * 30, // 30 days ago
-    createdAt: now - 86400000 * 30,
-    updatedAt: now
-  };
-  await projectsRef.doc(proj2.id).set(proj2, { merge: true });
+  // 7. Seed Milestones for CropGuard AI
+  const milestonesList: Milestone[] = [
+    {
+      id: "cg_mile_1",
+      projectId: proj1.id,
+      title: "1. Problem Definition",
+      description: "Scoped farmer challenges in rural agricultural clusters, confirmed dataset criteria, and aligned with domain mentor Dr. Mehta.",
+      targetDate: now - 1000 * 60 * 60 * 24 * 15,
+      status: MilestoneStatus.COMPLETED,
+      completionPercentage: 100,
+      createdBy: student1Id,
+      completedAt: now - 1000 * 60 * 60 * 24 * 15,
+      createdAt: now - 1000 * 60 * 60 * 24 * 20,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 15,
+    },
+    {
+      id: "cg_mile_2",
+      projectId: proj1.id,
+      title: "2. Dataset Preparation",
+      description: "Collected, annotated, and verified 4,200 multi-spectral crop leaf images across 8 disease classes.",
+      targetDate: now - 1000 * 60 * 60 * 24 * 7,
+      status: MilestoneStatus.COMPLETED,
+      completionPercentage: 100,
+      createdBy: student1Id,
+      completedAt: now - 1000 * 60 * 60 * 24 * 7,
+      createdAt: now - 1000 * 60 * 60 * 24 * 15,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+    {
+      id: "cg_mile_3",
+      projectId: proj1.id,
+      title: "3. ML Baseline",
+      description: "Train initial convolutional baseline models (MobileNet/ResNet) and optimize F1-score for low-resolution mobile field camera images.",
+      targetDate: now + 1000 * 60 * 60 * 24 * 10,
+      status: MilestoneStatus.IN_PROGRESS,
+      completionPercentage: 60,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 7,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 1,
+    },
+    {
+      id: "cg_mile_4",
+      projectId: proj1.id,
+      title: "4. Application Integration",
+      description: "Build multilingual mobile dashboard with voice assistant support and automated real-time disease treatment recommendations.",
+      targetDate: now + 1000 * 60 * 60 * 24 * 25,
+      status: MilestoneStatus.NOT_STARTED,
+      completionPercentage: 0,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 7,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+    {
+      id: "cg_mile_5",
+      projectId: proj1.id,
+      title: "5. Field Validation",
+      description: "Deploy prototype test kits to 20 local smallholder farmers and evaluate diagnostic precision in real farm conditions.",
+      targetDate: now + 1000 * 60 * 60 * 24 * 38,
+      status: MilestoneStatus.NOT_STARTED,
+      completionPercentage: 0,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 7,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+    {
+      id: "cg_mile_6",
+      projectId: proj1.id,
+      title: "6. Final Demonstration",
+      description: "Present live demonstration, submit production codebase repository, and publish final impact evaluation report for certification.",
+      targetDate: now + 1000 * 60 * 60 * 24 * 45,
+      status: MilestoneStatus.NOT_STARTED,
+      completionPercentage: 0,
+      createdBy: student1Id,
+      createdAt: now - 1000 * 60 * 60 * 24 * 7,
+      updatedAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+  ];
 
-  // Mock an Originality Report manually instead of via service to avoid complex mocking of AI if missing
-  await adminDb.collection("originalityReports").doc("demo_orig_2").set({
-    id: "demo_orig_2",
-    projectId: proj2.id,
+  for (const m of milestonesList) {
+    await adminDb.collection('milestones').doc(m.id).set(m, { merge: true });
+    await projectsRef.doc(proj1.id).collection('milestones').doc(m.id).set(m, { merge: true });
+  }
+
+  // 8. Seed Chat Messages for CropGuard AI
+  const messagesList: ProjectMessage[] = [
+    {
+      id: "cg_msg_1",
+      projectId: proj1.id,
+      senderId: student1Id,
+      senderName: "Aarav Sharma",
+      message: "We've completed the initial crop disease dataset preparation.",
+      createdAt: now - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 45,
+    },
+    {
+      id: "cg_msg_2",
+      projectId: proj1.id,
+      senderId: mentorId,
+      senderName: "Dr. Rahul Mehta",
+      message: "Great. Before training the baseline model, verify that the classes are reasonably balanced.",
+      createdAt: now - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 30,
+    },
+    {
+      id: "cg_msg_3",
+      projectId: proj1.id,
+      senderId: student1Id,
+      senderName: "Aarav Sharma",
+      message: "We'll run the class distribution analysis today.",
+      createdAt: now - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 15,
+    },
+    {
+      id: "cg_msg_4",
+      projectId: proj1.id,
+      senderId: mentorId,
+      senderName: "Dr. Rahul Mehta",
+      message: "Perfect. Share the results here before moving to model evaluation.",
+      createdAt: now - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 5,
+    },
+  ];
+
+  for (const msg of messagesList) {
+    await adminDb.collection('projectMessages').doc(msg.id).set(msg, { merge: true });
+  }
+
+  // 9. Seed Files for CropGuard AI
+  const filesList: ProjectFile[] = [
+    {
+      id: "cg_file_1",
+      projectId: proj1.id,
+      uploadedBy: student1Id,
+      fileName: "CropGuard_Project_Proposal.pdf",
+      contentType: "application/pdf",
+      size: 2450000,
+      storagePath: `projects/${proj1.id}/CropGuard_Project_Proposal.pdf`,
+      category: FileCategory.DOCUMENT,
+      createdAt: now - 1000 * 60 * 60 * 24 * 15,
+    },
+    {
+      id: "cg_file_2",
+      projectId: proj1.id,
+      uploadedBy: student1Id,
+      fileName: "Disease_Dataset_Summary.xlsx",
+      contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      size: 1120000,
+      storagePath: `projects/${proj1.id}/Disease_Dataset_Summary.xlsx`,
+      category: FileCategory.REPORT,
+      createdAt: now - 1000 * 60 * 60 * 24 * 10,
+    },
+    {
+      id: "cg_file_3",
+      projectId: proj1.id,
+      uploadedBy: student2Id,
+      fileName: "Model_Architecture.png",
+      contentType: "image/png",
+      size: 870000,
+      storagePath: `projects/${proj1.id}/Model_Architecture.png`,
+      category: FileCategory.IMAGE,
+      createdAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+    {
+      id: "cg_file_4",
+      projectId: proj1.id,
+      uploadedBy: student1Id,
+      fileName: "Baseline_Model_Report.pdf",
+      contentType: "application/pdf",
+      size: 3680000,
+      storagePath: `projects/${proj1.id}/Baseline_Model_Report.pdf`,
+      category: FileCategory.REPORT,
+      createdAt: now - 1000 * 60 * 60 * 24 * 3,
+    },
+    {
+      id: "cg_file_5",
+      projectId: proj1.id,
+      uploadedBy: student2Id,
+      fileName: "Field_Test_Plan.docx",
+      contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      size: 640000,
+      storagePath: `projects/${proj1.id}/Field_Test_Plan.docx`,
+      category: FileCategory.DOCUMENT,
+      createdAt: now - 1000 * 60 * 60 * 24 * 1,
+    },
+  ];
+
+  for (const f of filesList) {
+    await adminDb.collection('projectFiles').doc(f.id).set(f, { merge: true });
+  }
+
+  // 10. Seed Activities for CropGuard AI
+  const activitiesList: ProjectActivity[] = [
+    {
+      id: "cg_act_1",
+      projectId: proj1.id,
+      actorId: student1Id,
+      actorName: "Aarav Sharma",
+      action: "TASK_UPDATED" as any,
+      entityType: "TASK",
+      entityId: "cg_task_3",
+      metadata: { title: "Train baseline classification model", status: "IN_PROGRESS" },
+      createdAt: now - 1000 * 60 * 60 * 6,
+    },
+    {
+      id: "cg_act_2",
+      projectId: proj1.id,
+      actorId: mentorId,
+      actorName: "Dr. Rahul Mehta",
+      action: "CHAT_MESSAGE" as any,
+      entityType: "MESSAGE",
+      metadata: { textPreview: "Great. Before training the baseline model..." },
+      createdAt: now - 1000 * 60 * 60 * 24 * 2,
+    },
+    {
+      id: "cg_act_3",
+      projectId: proj1.id,
+      actorId: student1Id,
+      actorName: "Aarav Sharma",
+      action: "MILESTONE_COMPLETED" as any,
+      entityType: "MILESTONE",
+      entityId: "cg_mile_2",
+      metadata: { title: "2. Dataset Preparation" },
+      createdAt: now - 1000 * 60 * 60 * 24 * 7,
+    },
+    {
+      id: "cg_act_4",
+      projectId: proj1.id,
+      actorId: student2Id,
+      actorName: "Ananya Patil",
+      action: "FILE_UPLOADED" as any,
+      entityType: "FILE",
+      metadata: { fileName: "Disease_Dataset_Summary.xlsx" },
+      createdAt: now - 1000 * 60 * 60 * 24 * 10,
+    },
+    {
+      id: "cg_act_5",
+      projectId: proj1.id,
+      actorId: student1Id,
+      actorName: "Aarav Sharma",
+      action: "MILESTONE_COMPLETED" as any,
+      entityType: "MILESTONE",
+      entityId: "cg_mile_1",
+      metadata: { title: "1. Problem Definition" },
+      createdAt: now - 1000 * 60 * 60 * 24 * 15,
+    },
+    {
+      id: "cg_act_6",
+      projectId: proj1.id,
+      actorId: userUIDs["institution.demo@synergybridge.local"],
+      actorName: "Prof. Vikram Joshi",
+      action: "MENTOR_ASSIGNED" as any,
+      entityType: "PROJECT",
+      metadata: { mentorId: "Dr. Rahul Mehta" },
+      createdAt: now - 1000 * 60 * 60 * 24 * 18,
+    },
+    {
+      id: "cg_act_7",
+      projectId: proj1.id,
+      actorId: student1Id,
+      actorName: "Aarav Sharma",
+      action: "PROJECT_CREATED" as any,
+      entityType: "PROJECT",
+      metadata: { title: "CropGuard AI" },
+      createdAt: now - 1000 * 60 * 60 * 24 * 20,
+    },
+  ];
+
+  for (const act of activitiesList) {
+    await adminDb.collection('projectActivities').doc(act.id).set(act, { merge: true });
+  }
+
+  // 11. Seed Originality Report & Funding Grant for CropGuard AI
+  await adminDb.collection("originalityReports").doc("cg_orig_1").set({
+    id: "cg_orig_1",
+    projectId: proj1.id,
     version: 1,
     score: 95,
     passed: true,
     flags: [],
-    analysisMetadata: "Simulated originality check for demo.",
-    createdAt: new Date().toISOString()
-  });
-  
-  // Directly add Funding 
-  await adminDb.collection("fundingGrants").doc("demo_grant_1").set({
-    id: "demo_grant_1",
-    projectId: proj2.id,
+    analysisMetadata: "Automated institutional evaluation verified unique dataset collection methodology and novel edge convolutional architecture.",
+    createdAt: new Date(now - 1000 * 60 * 60 * 24 * 14).toISOString()
+  }, { merge: true });
+
+  const grant1: FundingGrant = {
+    id: "cg_grant_1",
+    projectId: proj1.id,
     requestedAmount: 50000,
+    approvedAmount: 40000,
+    disbursedAmount: 20000,
     currency: "INR",
     tier: "SEED",
-    source: "SynergyBridge Micro-Funding",
-    status: "DISBURSED",
-    approvedAmount: 50000,
-    disbursedAmount: 50000,
+    source: "SynergyBridge AgriTech Innovation Grant",
+    status: FundingStatus.APPROVED,
     originalityScore: 95,
+    projectQualityScore: 92,
     milestones: [
-      { id: "gm_1", title: "Initial", amount: 50000, status: "RELEASED", releasedAt: new Date().toISOString() }
+      {
+        id: "fm_1",
+        title: "Cloud/API Infrastructure",
+        amount: 12000,
+        status: "RELEASED",
+        releasedAt: new Date(now - 1000 * 60 * 60 * 24 * 10).toISOString(),
+      },
+      {
+        id: "fm_2",
+        title: "Dataset & Annotation Tooling",
+        amount: 8000,
+        status: "RELEASED",
+        releasedAt: new Date(now - 1000 * 60 * 60 * 24 * 7).toISOString(),
+      },
+      {
+        id: "fm_3",
+        title: "Field Testing & Regional Partner Trials",
+        amount: 15000,
+        status: "PENDING",
+        dueDate: new Date(now + 1000 * 60 * 60 * 24 * 30).toISOString(),
+      },
+      {
+        id: "fm_4",
+        title: "Hardware / Mobile Test Equipment",
+        amount: 5000,
+        status: "PENDING",
+        dueDate: new Date(now + 1000 * 60 * 60 * 24 * 40).toISOString(),
+      },
     ],
     requestedBy: student1Id,
-    createdAt: new Date().toISOString(),
+    reviewedBy: "reviewer.demo@synergybridge.local",
+    reviewedAt: new Date(now - 1000 * 60 * 60 * 24 * 12).toISOString(),
+    createdAt: new Date(now - 1000 * 60 * 60 * 24 * 15).toISOString(),
     updatedAt: new Date().toISOString(),
-  });
+  };
 
-  // Certificate
-  await adminDb.collection("certificates").doc("demo_cert_1").set({
-    id: "demo_cert_1",
-    verificationId: "DEMO-CERT-001",
-    projectId: proj2.id,
-    applicationId: "demo_app_legacy",
-    problemId: problemIds[1],
-    studentId: student1Id,
-    studentName: "Aarav Sharma",
-    projectTitle: "CropGuard AI Complete",
-    problemTitle: "AI Crop Disease Detection",
-    issuedAt: new Date().toISOString(),
-    status: "ISSUED",
-    certificateHash: "demo_hash_abc123",
-    blockchainStatus: "NOT_REQUESTED",
-    digiLockerStatus: "NOT_REQUESTED",
-    abcStatus: "NOT_REQUESTED",
-    originalityScore: 95,
-    issuerId: primaryPosterId,
-    issuerName: "Demo Issuer",
-    eligibilitySnapshot: { eligible: true, reasons: [] },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  });
+  await adminDb.collection("fundingGrants").doc(grant1.id).set(grant1, { merge: true });
 
-  console.log("✅ Seeded projects, workspaces, originality, funding, certificates");
-
-  // Create some project activity for analytics
-  await adminDb.collection("projects").doc(proj1.id).collection("activity").add({
-    id: "act1", projectId: proj1.id, actorId: student1Id, actorName: "Aarav", action: "TASK_COMPLETED", entityType: "TASK", entityId: "demo_task_1", createdAt: now
-  });
-
+  console.log("✅ Seeded CropGuard AI tasks, milestones, messages, files, activities, funding & originality");
   console.log("🎉 Production demo dataset seeding complete.");
 }
 
