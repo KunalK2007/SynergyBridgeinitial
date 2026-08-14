@@ -46,6 +46,11 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // User Settings Collection
+    match /userSettings/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     // Problems Collection
     match /problems/{problemId} {
       allow read: if resource.data.status == 'PUBLISHED' 
