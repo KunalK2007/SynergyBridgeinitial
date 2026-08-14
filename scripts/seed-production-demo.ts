@@ -165,12 +165,24 @@ async function seedProductionDemo() {
       } as GamificationProfile, { merge: true });
 
     } else if (account.role === UserRole.MENTOR) {
-      await adminDb.collection('mentorProfiles').doc(uid).set({
+      const mentorData = {
+        id: uid,
         userId: uid,
+        displayName: account.name,
+        name: account.name,
+        email: account.email,
         expertiseAreas: ["Agricultural AI", "Edge Deep Learning", "Cloud Architecture"],
         organization: "Agricultural AI Research Labs",
-        availability: "Weekdays & Weekends"
-      }, { merge: true });
+        availabilityStatus: "AVAILABLE",
+        currentProjectCount: 1,
+        maxActiveProjects: 5,
+        rating: 4.9,
+        reviewsCount: 12,
+        createdAt: now,
+        updatedAt: now
+      };
+      await adminDb.collection('mentorProfiles').doc(uid).set(mentorData, { merge: true });
+      await adminDb.collection('mentors').doc(uid).set(mentorData, { merge: true });
     }
   }
 

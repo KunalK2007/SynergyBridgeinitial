@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Project, ProjectStatus } from "@/types/project";
@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ArrowRight, AlertTriangle, CheckCircle, Clock } from "lucide-react";
-import toast from "react-hot-toast";
 import { MentorAnalyticsWidget } from "@/features/analytics/components/MentorAnalyticsWidget";
 
 interface EnrichedProject {
@@ -35,16 +34,31 @@ export default function MentorDashboard() {
       }
 
       try {
-        const pSnap = await getDocs(query(collection(db, "mentors"), where("userId", "==", currentUser.uid)));
-        if (!pSnap.empty) {
-          setProfile({ id: pSnap.docs[0].id, ...pSnap.docs[0].data() } as MentorProfile);
+        // 1. Try mentorProfiles collection first, then mentors
+        const profileDoc = await getDoc(doc(db, "mentorProfiles", currentUser.uid));
+        if (profileDoc.exists()) {
+          setProfile({ id: profileDoc.id, ...profileDoc.data() } as MentorProfile);
+        } else {
+          const pSnap = await getDocs(query(collection(db, "mentors"), where("userId", "==", currentUser.uid)));
+          if (!pSnap.empty) {
+            setProfile({ id: pSnap.docs[0].id, ...pSnap.docs[0].data() } as MentorProfile);
+          }
         }
 
+        // 2. Fetch Assigned Projects
         const projSnap = await getDocs(query(collection(db, "projects"), where("mentorId", "==", currentUser.uid)));
+        let loadedProjects = projSnap.docs.map(d => ({ id: d.id, ...d.data() } as Project));
+        
+        if (loadedProjects.length === 0) {
+          const allProjSnap = await getDocs(collection(db, "projects"));
+          loadedProjects = allProjSnap.docs
+            .map(d => ({ id: d.id, ...d.data() } as Project))
+            .filter(p => p.mentorId === currentUser.uid);
+        }
+
         const loaded: EnrichedProject[] = [];
 
-        for (const d of projSnap.docs) {
-          const p = { id: d.id, ...d.data() } as Project;
+        for (const p of loadedProjects) {
           const health = calculateProjectHealth(p.updatedAt, now, p.targetCompletionDate, p.progress || 0);
           loaded.push({ project: p, health, progress: p.progress || 0 });
         }
@@ -56,8 +70,7 @@ export default function MentorDashboard() {
 
         setProjects(loaded);
       } catch (err) {
-        console.error(err);
-        toast.error("Failed to load dashboard");
+        console.error("Mentor dashboard load error:", err);
       } finally {
         setLoading(false);
       }
