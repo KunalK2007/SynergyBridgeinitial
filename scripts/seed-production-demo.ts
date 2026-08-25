@@ -21,6 +21,7 @@ import { ProjectMessage } from '../src/types/project-message';
 import { ProjectFile, FileCategory } from '../src/types/project-file';
 import { ProjectActivity } from '../src/types/project-activity';
 import { FundingGrant, FundingStatus } from '../src/types/funding';
+import { Certificate, CertificateStatus, BlockchainStatus, ExternalCredentialStatus } from '../src/types/certificate';
 
 if (process.env.NODE_ENV === 'production' && process.env.ENABLE_PRODUCTION_SEED !== 'true') {
   console.error("🚨 ERROR: Attempted to run demo seed in production without explicit override.");
@@ -225,39 +226,123 @@ async function seedProductionDemo() {
   const problemsList = [
     {
       id: "demo_prob_1",
-      title: "AI Crop Disease Detection",
-      domain: "Agriculture & AI",
-      shortDescription: "An AI-assisted crop monitoring platform to detect disease and crop stress early.",
-      problemStatement: "Smallholder farmers experience significant crop yield losses due to late or inaccurate diagnosis of fungal and bacterial leaf blights in regional farmlands.",
-      whyItMatters: "Early and accessible mobile detection safeguards food security and farmer livelihood.",
+      title: "AI-Based Crop Disease Detection",
+      domain: "Agriculture",
+      shortDescription: "Develop an AI-assisted system that detects common crop diseases from leaf images and provides farmers with early alerts and recommended preventive actions.",
+      problemStatement: "Crop diseases cause massive yield losses. Farmers need an accessible way to detect diseases early using computer vision.",
+      whyItMatters: "Early detection safeguards food security and farmer livelihood.",
       expectedOutcome: "A deployable low-latency edge AI model and farmer advisory mobile interface with >90% diagnosis accuracy.",
+      difficulty: DifficultyLevel.INTERMEDIATE,
+      organizationName: "AgriTech Innovation Lab",
+      skills: [
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_ml", name: "Machine Learning", category: "AI/ML", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
     },
     {
       id: "demo_prob_2",
-      title: "Smart Traffic Management System",
-      domain: "Smart Cities & IoT",
-      shortDescription: "Optimize urban traffic signal timing dynamically using edge vision sensors.",
-      problemStatement: "Urban intersections face heavy congestion and emergency vehicle delays due to rigid static signal cycles.",
-      whyItMatters: "Dynamic signal coordination reduces carbon emissions and improves transit efficiency.",
-      expectedOutcome: "Edge IoT vision prototype that dynamically adjusts green light timing based on real-time vehicle density.",
+      title: "Intelligent Phishing Detection Platform",
+      domain: "Cybersecurity",
+      shortDescription: "Build a system that analyzes emails, URLs, and message patterns to identify potential phishing attempts and provide explainable risk indicators.",
+      problemStatement: "Phishing attacks are becoming increasingly sophisticated. We need a system to analyze message patterns and identify risks.",
+      whyItMatters: "Protecting users from phishing saves millions in stolen assets and data breaches.",
+      expectedOutcome: "A platform providing explainable risk indicators for analyzed emails and URLs.",
+      difficulty: DifficultyLevel.INTERMEDIATE,
+      organizationName: "SecureNet Labs",
+      skills: [
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_cyber", name: "Cybersecurity", category: "Cybersecurity", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
     },
     {
       id: "demo_prob_3",
-      title: "Hospital Resource Optimization",
+      title: "AI-Assisted Medical Appointment Prioritization",
       domain: "Healthcare",
-      shortDescription: "Predictive ICU bed allocation and medical equipment tracking.",
-      problemStatement: "Emergency rooms experience severe delays when allocating specialized ICU equipment.",
-      whyItMatters: "Timely ICU bed allocation directly impacts patient survival rates.",
-      expectedOutcome: "Predictive scheduling system with queue optimization algorithms.",
+      shortDescription: "Design a decision-support system that helps healthcare administrators prioritize appointment requests based on urgency and available resources.",
+      problemStatement: "Healthcare facilities struggle with backlogs. We need an AI to prioritize based on patient urgency.",
+      whyItMatters: "Efficient prioritization can save lives and reduce wait times for critical patients.",
+      expectedOutcome: "A decision-support system for appointment scheduling.",
+      difficulty: DifficultyLevel.ADVANCED,
+      organizationName: "HealthTech Research Center",
+      skills: [
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.ADVANCED, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_data", name: "Data Analytics", category: "Data", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
     },
     {
       id: "demo_prob_4",
-      title: "Renewable Energy Grid Balancing",
-      domain: "Clean Energy",
-      shortDescription: "Predict solar panel yield and automatically balance microgrid loads.",
-      problemStatement: "Variable solar output creates microgrid fluctuations in rural community microgrids.",
-      whyItMatters: "Stable microgrids ensure reliable clean power for rural health clinics and schools.",
-      expectedOutcome: "Time-series forecasting model coupled with battery discharge automation.",
+      title: "Personalized Learning Recommendation Engine",
+      domain: "Education",
+      shortDescription: "Create a recommendation engine that analyzes student learning activity and suggests relevant learning resources and practice topics.",
+      problemStatement: "Students have different learning paces. A personalized engine is needed to suggest resources.",
+      whyItMatters: "Personalized learning improves student engagement and academic outcomes.",
+      expectedOutcome: "A recommendation engine integrated with a learning platform.",
+      difficulty: DifficultyLevel.INTERMEDIATE,
+      organizationName: "EduNova Foundation",
+      skills: [
+        { skillId: "sk_react", name: "React", category: "Development", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_ml", name: "Machine Learning", category: "AI/ML", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
+    },
+    {
+      id: "demo_prob_5",
+      title: "Smart Fraud Risk Detection",
+      domain: "FinTech",
+      shortDescription: "Develop a machine-learning model that identifies suspicious transaction patterns and generates explainable fraud-risk scores.",
+      problemStatement: "Financial fraud is a growing concern. We need a robust model to detect suspicious transactions.",
+      whyItMatters: "Detecting fraud early protects consumers and financial institutions.",
+      expectedOutcome: "An ML model that generates explainable fraud-risk scores.",
+      difficulty: DifficultyLevel.ADVANCED,
+      organizationName: "FinSecure Technologies",
+      skills: [
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.ADVANCED, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_sql", name: "SQL", category: "Data", minimumLevel: SkillLevel.ADVANCED, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
+    },
+    {
+      id: "demo_prob_6",
+      title: "Urban Waste Collection Optimization",
+      domain: "Smart Cities",
+      shortDescription: "Develop an optimization system that recommends efficient waste-collection routes using historical collection data and demand patterns.",
+      problemStatement: "Inefficient waste collection leads to overflowing bins and high fuel consumption.",
+      whyItMatters: "Optimized routes save costs and reduce the carbon footprint of municipal services.",
+      expectedOutcome: "A system recommending efficient waste-collection routes.",
+      difficulty: DifficultyLevel.ADVANCED,
+      organizationName: "SmartCity Innovation Hub",
+      skills: [
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.ADVANCED, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_iot", name: "IoT", category: "Hardware", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
+    },
+    {
+      id: "demo_prob_7",
+      title: "Campus Energy Consumption Intelligence",
+      domain: "Climate & Environment",
+      shortDescription: "Build an analytics platform that identifies unusual energy consumption patterns and recommends opportunities for reducing campus energy usage.",
+      problemStatement: "Campuses consume large amounts of energy. We need an analytics platform to identify waste.",
+      whyItMatters: "Reducing energy usage lowers costs and supports climate sustainability goals.",
+      expectedOutcome: "An analytics platform that highlights unusual consumption patterns.",
+      difficulty: DifficultyLevel.INTERMEDIATE,
+      organizationName: "GreenCampus Initiative",
+      skills: [
+        { skillId: "sk_iot", name: "IoT", category: "Hardware", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_data", name: "Data Analytics", category: "Data", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
+    },
+    {
+      id: "demo_prob_8",
+      title: "AI-Powered Public Service Feedback Analyzer",
+      domain: "Artificial Intelligence",
+      shortDescription: "Create a system that analyzes citizen feedback and automatically categorizes recurring issues to help institutions prioritize improvements.",
+      problemStatement: "Institutions receive thousands of feedback messages. We need AI to categorize and summarize them.",
+      whyItMatters: "Efficient categorization helps institutions address critical public issues faster.",
+      expectedOutcome: "A system that categorizes recurring issues and visualizes trends.",
+      difficulty: DifficultyLevel.INTERMEDIATE,
+      organizationName: "Civic Innovation Lab",
+      skills: [
+        { skillId: "sk_nlp", name: "NLP", category: "AI/ML", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
+        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
+      ]
     }
   ];
 
@@ -272,14 +357,11 @@ async function seedProductionDemo() {
       successCriteria: ["Accuracy > 90%", "Inference Latency < 200ms", "Zero false-negative for critical conditions"],
       domain: p.domain,
       problemType: ProblemType.INDUSTRY,
-      difficulty: DifficultyLevel.INTERMEDIATE,
-      skills: [
-        { skillId: "sk_python", name: "Python", category: "Programming", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any },
-        { skillId: "sk_cv", name: "Computer Vision", category: "AI/ML", minimumLevel: SkillLevel.INTERMEDIATE, importance: "REQUIRED" as any, requirementType: "REQUIRED" as any }
-      ],
-      tags: ["agriculture", "ai", "computer-vision", "edge-computing"],
-      sdgs: [2, 9, 12],
-      targetBeneficiaries: ["Smallholder farmers", "Rural agriculture cooperatives"],
+      difficulty: p.difficulty,
+      skills: p.skills,
+      tags: ["innovation", p.domain.toLowerCase()],
+      sdgs: [9],
+      targetBeneficiaries: ["General public"],
       geographicScope: GeographicScope.NATIONAL,
       constraints: [],
       teamPreference: TeamPreference.SMALL_TEAM,
@@ -290,7 +372,7 @@ async function seedProductionDemo() {
       visibility: "PUBLIC",
       posterId: primaryPosterId,
       posterRole: UserRole.INDUSTRY,
-      organizationName: "AgriTech Innovation Council",
+      organizationName: p.organizationName,
       verificationStatus: VerificationStatus.VERIFIED,
       createdAt: now - 1000 * 60 * 60 * 24 * 30,
       updatedAt: now
@@ -967,7 +1049,42 @@ async function seedProductionDemo() {
 
   await adminDb.collection("fundingGrants").doc(grant1.id).set(grant1, { merge: true });
 
-  console.log("✅ Seeded CropGuard AI tasks, milestones, messages, files, activities, funding & originality");
+  // 12. Seed Demo Certificate for CropGuard AI
+  const cert1: Certificate = {
+    id: "cert_cropguard_demo_1",
+    verificationId: "DEMO-CERT-001",
+    projectId: proj1.id,
+    applicationId: proj1.applicationId,
+    problemId: proj1.problemId,
+    studentId: student1Id,
+    studentName: "Priya Sharma",
+    projectTitle: "CropGuard AI Complete",
+    problemTitle: "AI Crop Disease Detection",
+    institution: "SynergyBridge Demo University",
+    issuedAt: new Date(now - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    status: CertificateStatus.ISSUED,
+    certificateHash: "demo-hash-12345",
+    blockchainStatus: BlockchainStatus.MOCK,
+    blockchainTransactionId: "mock-tx-5678",
+    digiLockerStatus: ExternalCredentialStatus.NOT_REQUESTED,
+    abcStatus: ExternalCredentialStatus.NOT_REQUESTED,
+    originalityScore: 95,
+    originalityReportId: "cg_orig_1",
+    issuerId: "system-seed",
+    issuerName: "SynergyBridge System",
+    eligibilitySnapshot: {
+      taskCompletionPercentage: 100,
+      completedMilestones: true,
+      originalityScore: 95,
+      eligibilityCheckedAt: new Date(now - 1000 * 60 * 60 * 24 * 6).toISOString(),
+    },
+    createdAt: new Date(now - 1000 * 60 * 60 * 24 * 6).toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  await adminDb.collection("certificates").doc(cert1.id).set(cert1, { merge: true });
+
+  console.log("✅ Seeded CropGuard AI tasks, milestones, messages, files, activities, funding, originality & certificate");
   console.log("🎉 Production demo dataset seeding complete.");
 }
 

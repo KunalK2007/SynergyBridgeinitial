@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import { Problem, ProblemStatus } from "@/types/problem";
+import { Problem, ProblemStatus, VerificationStatus } from "@/types/problem";
 import { ProblemCard } from "@/features/problems/components/ProblemCard";
 import { DOMAINS } from "@/lib/constants/taxonomy";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,7 @@ import { Search, Filter, Loader2, X } from "lucide-react";
 export default function ExploreProblemsPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorState, setErrorState] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<string>("");
@@ -22,25 +23,32 @@ export default function ExploreProblemsPage() {
       let q = query(
         collection(db, "problems"),
         where("status", "==", ProblemStatus.PUBLISHED),
-        orderBy("createdAt", "desc"),
-        limit(20)
+        where("visibility", "==", "PUBLIC"),
+        where("verificationStatus", "==", VerificationStatus.VERIFIED),
+        limit(50)
       );
 
       if (selectedDomain) {
         q = query(
           collection(db, "problems"),
           where("status", "==", ProblemStatus.PUBLISHED),
+          where("visibility", "==", "PUBLIC"),
+          where("verificationStatus", "==", VerificationStatus.VERIFIED),
           where("domain", "==", selectedDomain),
-          orderBy("createdAt", "desc"),
-          limit(20)
+          limit(50)
         );
       }
 
       const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => doc.data() as Problem);
+      
+      // Sort on the client to avoid requiring a composite index
+      data.sort((a, b) => b.createdAt - a.createdAt);
+      
       setProblems(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching problems:", error);
+      setErrorState(error.message || String(error));
     } finally {
       setLoading(false);
     }
@@ -133,7 +141,9 @@ export default function ExploreProblemsPage() {
 
           {/* Main Content Area */}
           <div className="flex-1">
-            {loading ? (
+            {errorState ? (
+              <div className="bg-red-100 p-8 text-red-900 font-bold">{errorState}</div>
+            ) : loading ? (
               <div className="flex flex-col items-center justify-center py-20 text-[#5B5F73]">
                 <Loader2 className="w-8 h-8 animate-spin mb-4 text-[#9C7A4C]" />
                 <p>Loading problems...</p>
