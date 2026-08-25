@@ -12,16 +12,23 @@ export async function GET(
       return NextResponse.json({ valid: false, status: "NOT_FOUND" }, { status: 404 });
     }
 
-    const certsSnap = await adminDb.collection("certificates")
+    let certsSnap = await adminDb.collection("certificates")
       .where("verificationId", "==", verificationId)
       .limit(1)
       .get();
 
-    if (certsSnap.empty) {
-      return NextResponse.json({ valid: false, status: "NOT_FOUND" }, { status: 404 });
-    }
+    let cert: Certificate;
 
-    const cert = certsSnap.docs[0].data() as Certificate;
+    if (certsSnap.empty) {
+      // Fallback: check if the parameter was actually the document ID
+      const docSnap = await adminDb.collection("certificates").doc(verificationId).get();
+      if (!docSnap.exists) {
+        return NextResponse.json({ valid: false, status: "NOT_FOUND" }, { status: 404 });
+      }
+      cert = docSnap.data() as Certificate;
+    } else {
+      cert = certsSnap.docs[0].data() as Certificate;
+    }
 
     if (cert.status === "REVOKED") {
       return NextResponse.json({

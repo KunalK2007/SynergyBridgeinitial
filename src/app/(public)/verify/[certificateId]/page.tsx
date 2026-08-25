@@ -32,12 +32,22 @@ export default function PublicVerificationPage() {
     if (!certificateId) return;
     
     fetch(`/api/certificates/${certificateId}`)
-      .then(res => {
-        if (!res.ok && res.status !== 404) throw new Error("Failed to verify certificate");
+      .then(async res => {
+        if (!res.ok) {
+          if (res.status === 404) return res.json();
+          if (res.status === 403) throw new Error("Permission denied to verify certificate");
+          if (res.status === 400) throw new Error("Invalid certificate ID format");
+          const text = await res.text().catch(() => "");
+          throw new Error(`Query failure: Server returned ${res.status}`);
+        }
         return res.json();
       })
       .then((json: VerifyResponse) => {
-        setData(json);
+        if (json.valid === false && json.status === "NOT_FOUND") {
+          setData(null);
+        } else {
+          setData(json);
+        }
         setLoading(false);
       })
       .catch(err => {
