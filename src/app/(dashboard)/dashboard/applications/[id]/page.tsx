@@ -136,16 +136,16 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-24">
-      <Link href="/dashboard/applications" className="text-sm text-slate-400 hover:text-white flex items-center mb-6">
+      <Link href="/dashboard/applications" className="text-sm text-muted-foreground hover:text-foreground flex items-center mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Reviews
       </Link>
 
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">{problem.title}</h1>
-          <p className="text-slate-400 mt-2">Application from {application.teamId ? "Team" : "Individual Applicant"}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{problem.title}</h1>
+          <p className="text-muted-foreground mt-2">Application from {application.teamId ? "Team" : "Individual Applicant"}</p>
         </div>
-        <div className="px-3 py-1 bg-slate-800 text-slate-300 rounded font-semibold text-sm border border-slate-700">
+        <div className="px-3 py-1 bg-muted text-muted-foreground rounded font-semibold text-sm border border-border">
           Status: {application.status}
         </div>
       </div>
@@ -156,8 +156,8 @@ export default function ApplicationDetailPage() {
             <CardHeader>
               <CardTitle>Proposal</CardTitle>
             </CardHeader>
-            <CardContent className="prose prose-invert max-w-none">
-              <p className="whitespace-pre-wrap text-slate-300">{application.proposal}</p>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="whitespace-pre-wrap text-foreground">{application.proposal}</p>
             </CardContent>
           </Card>
 
@@ -165,24 +165,24 @@ export default function ApplicationDetailPage() {
             <CardHeader>
               <CardTitle>Motivation</CardTitle>
             </CardHeader>
-            <CardContent className="prose prose-invert max-w-none">
-              <p className="whitespace-pre-wrap text-slate-300">{application.motivation}</p>
+            <CardContent className="prose dark:prose-invert max-w-none">
+              <p className="whitespace-pre-wrap text-foreground">{application.motivation}</p>
             </CardContent>
           </Card>
         </div>
 
         <div className="space-y-6">
           <Card className="border-indigo-500/30">
-            <CardHeader className="bg-indigo-900/10 border-b border-indigo-500/20">
-              <CardTitle className="text-indigo-400 flex justify-between">
+            <CardHeader className="bg-indigo-50 dark:bg-indigo-900/10 border-b border-indigo-500/20">
+              <CardTitle className="text-indigo-600 dark:text-indigo-400 flex justify-between">
                 <span>SynergyBridge Fit</span>
-                <span className="text-2xl font-black text-white">{application.fitScore}%</span>
+                <span className="text-2xl font-black text-indigo-700 dark:text-indigo-300">{application.fitScore}%</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
-              <div className="text-sm text-slate-300 space-y-2">
+              <div className="text-sm text-foreground space-y-2">
                 {application.fitResult?.strengths.map((str, i) => (
-                  <div key={i} className="flex gap-2 text-emerald-400">
+                  <div key={i} className="flex gap-2 text-emerald-600 dark:text-emerald-400">
                     <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{str}</span>
                   </div>
@@ -205,9 +205,9 @@ export default function ApplicationDetailPage() {
                   <CheckCircle className="w-4 h-4 mr-2" /> Accept & Create Project
                 </Button>
                 
-                <div className="pt-4 border-t border-slate-800 space-y-2">
+                <div className="pt-4 border-t border-border space-y-2">
                   <select 
-                    className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white"
+                    className="w-full bg-background border border-input rounded p-2 text-sm text-foreground"
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                   >

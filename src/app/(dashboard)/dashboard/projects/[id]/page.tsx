@@ -42,7 +42,8 @@ const DEMO_PROJECT_FALLBACKS: Record<string, Partial<Project>> = {
     progress: 45,
     keyObjective: "Develop an edge-deployable deep learning model with >90% precision for early blight and rust detection, integrated with a local language mobile advisory dashboard for farmers.",
     problemId: "demo_prob_1",
-    applicationId: "demo_app_1"
+    applicationId: "demo_app_1",
+    mentorId: "mentor.demo@synergybridge.local"
   },
   demo_proj_2: {
     title: "AquaSense",
@@ -152,7 +153,7 @@ export default function ProjectWorkspace() {
               problemId: fallback.problemId || "demo_prob_1",
               applicationId: fallback.applicationId || "demo_app_1",
               studentIds: [currentUser.uid, "synthetic_student_2"],
-              mentorId: "mentor_demo_uid",
+              mentorId: fallback.mentorId,
               title: fallback.title || "CropGuard AI",
               description: fallback.description || "AI-assisted crop monitoring that helps identify crop stress and potential disease using image-based analysis.",
               category: fallback.category || "Agriculture & AI",

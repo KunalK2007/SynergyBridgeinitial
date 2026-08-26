@@ -8,6 +8,7 @@ import { Task } from "@/types/task";
 import { Milestone } from "@/types/milestone";
 import { calculateProjectProgress } from "@/lib/utils/project-progress";
 import { calculateProjectHealth, ProjectHealthStatus } from "@/lib/utils/project-health";
+import { hasAssignedMentor } from "@/lib/utils/project-helpers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { 
   Users, 
@@ -271,21 +272,31 @@ export default function OverviewTab({ project }: Props) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="p-4 rounded-xl bg-white/70 border border-[#5B5F73]/15 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#1C1C1E] text-white font-bold flex items-center justify-center text-sm">
-                  {mentor.name.split(" ")[1]?.charAt(0) || "M"}
+            {hasAssignedMentor(project) ? (
+              <div className="p-4 rounded-xl bg-white/70 border border-[#5B5F73]/15 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#1C1C1E] text-white font-bold flex items-center justify-center text-sm">
+                    {mentor.name.split(" ")[1]?.charAt(0) || "M"}
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-[#1C1C1E]">{mentor.name}</div>
+                    <div className="text-xs text-[#5B5F73]">{mentor.title}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-bold text-sm text-[#1C1C1E]">{mentor.name}</div>
-                  <div className="text-xs text-[#5B5F73]">{mentor.title}</div>
+                <div className="pt-2 border-t border-[#5B5F73]/15 text-xs text-[#5B5F73] space-y-1">
+                  <div><span className="font-medium text-[#1C1C1E]">Organization:</span> {mentor.organization}</div>
+                  <div><span className="font-medium text-[#1C1C1E]">Contact:</span> {mentor.email}</div>
                 </div>
               </div>
-              <div className="pt-2 border-t border-[#5B5F73]/15 text-xs text-[#5B5F73] space-y-1">
-                <div><span className="font-medium text-[#1C1C1E]">Organization:</span> {mentor.organization}</div>
-                <div><span className="font-medium text-[#1C1C1E]">Contact:</span> {mentor.email}</div>
+            ) : (
+              <div className="p-4 rounded-xl bg-white/70 border border-amber-500/30 bg-amber-50/50 flex flex-col items-center justify-center text-center space-y-2 h-full py-8">
+                <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-2 border border-amber-200">
+                  <UserCheck className="w-5 h-5 opacity-50" />
+                </div>
+                <div className="font-bold text-sm text-amber-800">Awaiting Mentor Assignment</div>
+                <div className="text-xs text-amber-600/80 max-w-[200px]">A faculty or industry expert will be assigned to guide this project soon.</div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>

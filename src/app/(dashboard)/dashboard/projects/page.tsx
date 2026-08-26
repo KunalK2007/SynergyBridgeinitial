@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Project, ProjectStatus } from "@/types/project";
 import { calculateProjectHealth, ProjectHealthStatus, ProjectHealthResult } from "@/lib/utils/project-health";
+import { hasAssignedMentor } from "@/lib/utils/project-helpers";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { collection, getDocs } from "firebase/firestore";
@@ -240,7 +241,7 @@ export default function ProjectsDashboardPage() {
                     )}
 
                     <div className="flex items-center gap-4 mt-3 text-sm text-[#5B5F73] dark:text-[#9499AD]">
-                      {project.mentorId ? (
+                      {hasAssignedMentor(project) ? (
                         <span>Mentor Assigned</span>
                       ) : (
                         <span className="text-amber-600 dark:text-amber-400">Awaiting Mentor</span>

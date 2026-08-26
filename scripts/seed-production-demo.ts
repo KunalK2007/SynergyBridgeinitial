@@ -451,7 +451,7 @@ async function seedProductionDemo() {
     },
     {
       id: "demo_app_7",
-      problemId: "demo_prob_1",
+      problemId: "demo_prob_6",
       applicantId: student1Id,
       proposal: "WasteWise: Computer vision waste sorting and collection fleet route optimization.",
       motivation: "Driving circular economy practices in municipal waste management.",
@@ -589,7 +589,7 @@ async function seedProductionDemo() {
     },
     {
       id: "demo_proj_7",
-      problemId: "demo_prob_1",
+      problemId: "demo_prob_6",
       applicationId: "demo_app_7",
       studentIds: [student1Id, "synthetic_student_6"],
       mentorId: mentorId,
@@ -1051,15 +1051,15 @@ async function seedProductionDemo() {
 
   // 12. Seed Demo Certificate for CropGuard AI
   const cert1: Certificate = {
-    id: "cert_cropguard_demo_1",
-    verificationId: "DEMO-CERT-001",
-    projectId: proj1.id,
-    applicationId: proj1.applicationId,
-    problemId: proj1.problemId,
+    id: "cert_wastewise_demo_1",
+    verificationId: "DEMO-CERT-002",
+    projectId: projectsList[6].id,
+    applicationId: projectsList[6].applicationId,
+    problemId: projectsList[6].problemId,
     studentId: student1Id,
-    studentName: "Priya Sharma",
-    projectTitle: "CropGuard AI Complete",
-    problemTitle: "AI Crop Disease Detection",
+    studentName: "Aarav Sharma",
+    projectTitle: "WasteWise Completed",
+    problemTitle: "Urban Waste Collection Optimization",
     institution: "SynergyBridge Demo University",
     issuedAt: new Date(now - 1000 * 60 * 60 * 24 * 5).toISOString(),
     status: CertificateStatus.ISSUED,
