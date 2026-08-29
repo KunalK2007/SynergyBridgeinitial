@@ -198,12 +198,12 @@ export default function FundingTab({ project }: FundingTabProps) {
   const hasSponsorApproval = currentGrant.milestones.some(m => m.approvals?.sponsorApprovedBy);
 
   let missingReq = "";
-  if (!isEntityVerified) missingReq = "Entity Verification Missing";
-  else if (!isAuthorizedRep) missingReq = "Not an Authorized Representative";
-  else if (!isBeneficiaryVerified) missingReq = "Beneficiaries Not Verified";
-  else if (!hasAIOriginality) missingReq = "AI Originality Check Failed";
-  else if (!hasMentorApproval) missingReq = "Mentor Approval Missing";
-  else if (!hasSponsorApproval) missingReq = "Sponsor Approval Missing";
+  if (!isEntityVerified) missingReq = "Entity verification required.";
+  else if (!isAuthorizedRep) missingReq = "Authorized representative required.";
+  else if (!isBeneficiaryVerified) missingReq = "Beneficiary verification required.";
+  else if (!hasAIOriginality) missingReq = "AI approval required.";
+  else if (!hasMentorApproval) missingReq = "Mentor approval required.";
+  else if (!hasSponsorApproval) missingReq = "Sponsor approval required.";
 
   const isEligible = !missingReq;
 
@@ -300,19 +300,19 @@ export default function FundingTab({ project }: FundingTabProps) {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-4 mb-4">
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle2 className={`w-4 h-4 ${isEntityVerified ? "text-emerald-600" : "text-gray-400"}`} />
-              <span className={isEntityVerified ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>Entity Verified</span>
+              <span className={isEntityVerified ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>Entity Verification</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle2 className={`w-4 h-4 ${isAuthorizedRep ? "text-emerald-600" : "text-gray-400"}`} />
-              <span className={isAuthorizedRep ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>Authorized Representative</span>
+              <span className={isAuthorizedRep ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>Representative</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle2 className={`w-4 h-4 ${isBeneficiaryVerified ? "text-emerald-600" : "text-gray-400"}`} />
-              <span className={isBeneficiaryVerified ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>Beneficiary Verified</span>
+              <span className={isBeneficiaryVerified ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>Beneficiary</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle2 className={`w-4 h-4 ${hasAIOriginality ? "text-emerald-600" : "text-gray-400"}`} />
-              <span className={hasAIOriginality ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>AI Originality</span>
+              <span className={hasAIOriginality ? "text-[#1C1C1E] font-medium" : "text-gray-500"}>AI Approval</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <CheckCircle2 className={`w-4 h-4 ${hasMentorApproval ? "text-emerald-600" : "text-gray-400"}`} />
@@ -329,14 +329,15 @@ export default function FundingTab({ project }: FundingTabProps) {
             isEligible ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-amber-100 text-amber-700 border-amber-200"
           }`}>
             {isRecoveryMode ? (
-              <>
-                ⚠ RECOVERY MODE<br/>
-                FUNDING OPERATIONS PAUSED
-              </>
+              <div className="space-y-1">
+                <div>⚠ SYSTEM RECOVERY MODE</div>
+                <div>FUNDING OPERATIONS PAUSED</div>
+                <div className="text-xs font-normal">Grant transactions are temporarily blocked while persistent data is being validated.</div>
+              </div>
             ) : isEligible ? (
               "STATUS: ELIGIBLE FOR RELEASE"
             ) : (
-              `STATUS: FUNDING BLOCKED - ${missingReq}`
+              `STATUS: Release blocked: ${missingReq}`
             )}
           </div>
         </CardContent>

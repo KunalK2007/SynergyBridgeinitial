@@ -55,7 +55,10 @@ describe("Funding Trust Architecture", () => {
     // We want to dynamically mock the transaction behavior based on tests
   });
 
-  const setupTransactionMock = (mockGrant: any, mockUsers: Record<string, any>) => {
+  const setupTransactionMock = (mockGrant: any, mockUsers: Record<string, any>, mockProject?: any) => {
+    const defaultProject = { id: mockGrant.projectId, studentIds: ["student-1"] };
+    const project = mockProject !== undefined ? mockProject : defaultProject;
+
     const tMock = {
       get: vi.fn(async (ref: any) => {
         if (ref.id === mockGrant.id) {
@@ -63,6 +66,9 @@ describe("Funding Trust Architecture", () => {
         }
         if (mockUsers && mockUsers[ref.id]) {
           return { exists: true, data: () => mockUsers[ref.id] };
+        }
+        if (project && ref.id === project.id) {
+          return { exists: true, data: () => project };
         }
         return { exists: false };
       }),
@@ -174,7 +180,7 @@ describe("Funding Trust Architecture", () => {
 
       await expect(
         fundingService.disburseMilestone("grant-1", "m-1", "user-1", "User")
-      ).rejects.toThrow("Unverified users cannot disburse funding.");
+      ).rejects.toThrow("Cannot disburse: Entity verification missing.");
     });
 
     it("rejects disbursement if AI originality missing", async () => {
@@ -243,7 +249,7 @@ describe("Funding Trust Architecture", () => {
     });
   });
 
-  describe("Recovery Mode (The Blackout)", () => {
+  describe("Recovery Mode (The Blackout) & Fail-Closed Guards", () => {
     it("rejects funding operations when in RECOVERY mode", async () => {
       serverEnv.SYNERGYBRIDGE_OPERATION_MODE = "RECOVERY";
       
@@ -256,6 +262,20 @@ describe("Funding Trust Architecture", () => {
       ).rejects.toThrow("SynergyBridge is currently in Recovery Mode. Funding operations are temporarily paused.");
 
       serverEnv.SYNERGYBRIDGE_OPERATION_MODE = "NORMAL";
+    });
+
+    it("rejects disbursement if beneficiary verification (studentIds) is missing", async () => {
+      const grant = { 
+        id: "grant-1", projectId: "p-1", status: "APPROVED", tier: "SEED", 
+        milestones: [{ id: "m-1", amount: 100, approvals: { aiOriginalityPassed: true, mentorApprovedBy: "m1" } }] 
+      };
+      const users = { "admin-1": { role: UserRole.ADMIN, isInstitutionVerified: true } };
+      // Pass a project with no students to simulate missing beneficiary verification
+      setupTransactionMock(grant, users, { id: "p-1", studentIds: [] });
+
+      await expect(
+        fundingService.disburseMilestone("grant-1", "m-1", "admin-1", "Admin")
+      ).rejects.toThrow("Cannot disburse: Beneficiary verification missing.");
     });
   });
 });

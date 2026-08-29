@@ -127,8 +127,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-3">
               <span className="text-red-500 font-bold text-lg">⚠</span>
               <div>
-                <p className="text-red-500 font-semibold">SynergyBridge is in Recovery Mode</p>
-                <p className="text-red-400 text-sm">Funding operations are temporarily paused while transaction data is being validated.</p>
+                <p className="text-red-500 font-semibold">⚠ SynergyBridge Recovery Mode</p>
+                <p className="text-red-400 text-sm">Funding and verification actions are temporarily paused while transaction records are being validated.</p>
               </div>
             </div>
           </div>

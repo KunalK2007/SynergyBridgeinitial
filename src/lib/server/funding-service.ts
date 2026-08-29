@@ -243,10 +243,18 @@ export class FundingService {
       const grant = grantSnap.data() as FundingGrant;
 
       const userSnap = await t.get(adminDb.collection("users").doc(disburserId));
-      if (!userSnap.exists) throw new Error("Disburser not found.");
+      if (!userSnap.exists) throw new Error("Disburser not found. Missing critical data.");
       const user = userSnap.data() as User;
       if (!user.isInstitutionVerified && user.role !== UserRole.ADMIN) {
-        throw new Error("Unverified users cannot disburse funding.");
+        throw new Error("Cannot disburse: Entity verification missing.");
+      }
+
+      // FAIL-CLOSED: Verify Beneficiaries exist
+      const projectSnap = await t.get(adminDb.collection("projects").doc(grant.projectId));
+      if (!projectSnap.exists) throw new Error("Project not found. Missing critical data.");
+      const project = projectSnap.data();
+      if (!project?.studentIds || !Array.isArray(project.studentIds) || project.studentIds.length === 0) {
+        throw new Error("Cannot disburse: Beneficiary verification missing.");
       }
 
       if (grant.status !== FundingStatus.APPROVED && grant.status !== FundingStatus.DISBURSED) {
@@ -320,7 +328,7 @@ export class FundingService {
       const projectSnap = await adminDb.collection("projects").doc(grant.projectId).get();
       if (projectSnap.exists) {
         const projectData = projectSnap.data();
-        const studentIds = projectData?.participantIds || [];
+        const studentIds = projectData?.studentIds || [];
         
         for (const sId of studentIds) {
           await processGamificationEvent(sId, GamificationEventType.FUNDING_MILESTONE_REACHED, milestoneId as string, { projectId: grant.projectId, grantId });

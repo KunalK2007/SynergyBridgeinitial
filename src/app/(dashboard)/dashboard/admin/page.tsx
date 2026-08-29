@@ -13,6 +13,7 @@ import { Certificate } from "@/types/certificate";
 import { FundingGrant } from "@/types/funding";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Link from "next/link";
+import { getOperationMode } from "@/app/actions";
 import { 
   ShieldCheck, 
   BarChart3, 
@@ -35,8 +36,10 @@ export default function AdminDashboard() {
     totalCerts: 0,
     totalFunding: 0
   });
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
   useEffect(() => {
+    getOperationMode().then(mode => setIsRecoveryMode(mode === "RECOVERY"));
     async function loadAdminData() {
       if (!currentUser) {
         setStats({ loading: false });
@@ -209,7 +212,38 @@ export default function AdminDashboard() {
       {/* Admin Quick Action Hub */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-[#1C1C1E]">Platform Operations</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border-[#9C7A4C]/20 shadow-sm md:col-span-1 bg-[#1C1C1E] text-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-[#9C7A4C]">System Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Application:</span>
+                <span className="text-emerald-400 font-bold">Operational</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Authentication:</span>
+                <span className="text-emerald-400 font-bold">Available</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Funding:</span>
+                <span className={isRecoveryMode ? "text-red-400 font-bold" : "text-emerald-400 font-bold"}>{isRecoveryMode ? "PAUSED" : "ACTIVE"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Verification:</span>
+                <span className={isRecoveryMode ? "text-red-400 font-bold" : "text-emerald-400 font-bold"}>{isRecoveryMode ? "PAUSED" : "ACTIVE"}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-gray-800 mt-2">
+                <span className="text-gray-400">Mode:</span>
+                <span className={isRecoveryMode ? "text-red-500 font-black" : "text-emerald-400 font-bold"}>{isRecoveryMode ? "RECOVERY" : "NORMAL"}</span>
+              </div>
+              <div className="text-[10px] text-gray-500 pt-2 mt-2 border-t border-gray-800">
+                Mode set via SYNERGYBRIDGE_OPERATION_MODE. Server restart required to toggle.
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="border-[#9C7A4C]/20 shadow-sm hover:border-[#9C7A4C]/40 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-semibold text-[#1C1C1E]">Problem Moderation</CardTitle>

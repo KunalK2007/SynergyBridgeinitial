@@ -70,3 +70,15 @@ try {
 }
 
 export const adminAuth = getAuth();
+
+// Attempt to audit System Mode on boot if Firestore is reachable
+const mode = process.env.SYNERGYBRIDGE_OPERATION_MODE === "RECOVERY" ? "RECOVERY" : "NORMAL";
+const action = mode === "RECOVERY" ? "SYSTEM_RECOVERY_MODE_ENABLED" : "SYSTEM_RECOVERY_MODE_DISABLED";
+adminDb.collection("platform_audit").add({
+  action,
+  timestamp: Date.now(),
+  actor: "SYSTEM_BOOT",
+  metadata: { mode }
+}).catch(() => {
+  // Silent fail if Firestore is unavailable, as requested
+});
