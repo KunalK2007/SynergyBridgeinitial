@@ -1,137 +1,134 @@
-# Trust & Evidence Center Implementation Plan
+# Trust & Evidence Implementation Plan
 
-**Notice: This is a proposed implementation plan. Existing website functionality remains unchanged.**
+**NOTICE: This is an analysis-only document. No existing code, UI, or database configuration has been modified. This plan must be approved before any implementation begins.**
 
-## 1. Current Architecture Analysis
-SynergyBridge operates on a Next.js App Router architecture using React Server Components and Client Components. 
-Backend mutations run primarily through Next.js API Routes and Server Actions utilizing the Firebase Admin SDK (`src/lib/firebase/admin.ts`).
-Data flows strictly from authenticated clients -> server-side validation (Zod) -> RBAC checks -> transactional Firestore updates. Security relies heavily on server-side guarding rather than client-side enforcement.
+## 1. Existing Architecture Findings
+SynergyBridge utilizes a Next.js App Router architecture with React Server Components. The backend relies on Firebase Admin SDK via Next.js API Routes and Server Actions for authoritative data mutations. State changes are guarded by server-side validation using Zod schemas and strict Role-Based Access Control (RBAC).
 
-## 2. Existing Components that could be reused
-- `src/components/ui/Card.tsx`, `Badge.tsx`, `Button.tsx`: Core building blocks for the proposed `TrustCard`.
-- `DashboardShell.tsx`: The primary layout wrapper to host the new `/dashboard/trust` route.
-- `ProjectActivity` component patterns: Can be adapted to show a timeline of evidence and reviews.
+## 2. Existing Reusable Components
+- `src/components/ui/Card.tsx`, `Badge.tsx`, `Button.tsx`: Foundational elements for building the future `TrustCard`.
+- `DashboardShell.tsx`: The primary navigation wrapper where a future `/dashboard/trust` route can be seamlessly integrated.
+- `ProjectActivity` patterns: Can be adapted to render the future `Evidence Timeline`.
 
-## 3. Existing Authentication/RBAC that could be reused
-- Firebase Auth context (`useAuth` hook) provides the `currentUser`.
-- Existing `UserRole` enum (`ADMIN`, `FACULTY`, `MENTOR`, `INDUSTRY`, `GOVERNMENT`, `INCUBATION`, `STUDENT`) allows for precise review delegation.
-- `src/lib/server/auth-helpers.ts` patterns can be extended to `canReviewClaim(userId, role)`.
+## 3. Existing Firebase Architecture
+- All authoritative writes utilize `adminDb.runTransaction()` to guarantee idempotency and prevent race conditions.
+- The `platform_audit` and `activity` subcollections provide an established pattern for logging system events.
+- Client-side reads are permitted, but writes are exclusively routed through secure server endpoints.
 
-## 4. Existing Firebase/Firestore Architecture
-- `adminDb.runTransaction()` is used to ensure safe, idempotent updates. This same pattern must be used when appending evidence or changing trust statuses to prevent race conditions.
-- Existing collections like `projects` and `originalityReports` provide an established relational model (using `projectId` as a foreign key) which `trustClaims` can emulate.
+## 4. Existing Authentication/RBAC
+- `useAuth()` hook provides client-side session state (`currentUser`).
+- The `UserRole` enum (`ADMIN`, `FACULTY`, `MENTOR`, `INDUSTRY`, `GOVERNMENT`, `INCUBATION`, `STUDENT`) is deeply integrated into the system.
+- `src/lib/server/auth-helpers.ts` provides server-side authorization boundaries that can be extended for Trust Reviewers.
 
 ## 5. Existing AI Architecture
-- The system already employs AI for `OriginalityService` (`src/lib/server/originality-service.ts`) producing an `OriginalityReport` (0-100 score).
-- AI serves as a signal, but final disbursal currently requires human mentor/sponsor cryptographic signatures. This "AI as advisor, human as authority" philosophy directly aligns with the proposed Trust & Evidence requirements.
+- The `OriginalityService` (`src/lib/server/originality-service.ts`) already demonstrates the paradigm of "AI as a signal, not an authority." It generates a 0-100 `OriginalityReport` score, but human cryptographic signatures are ultimately required for funding disbursal.
+- This existing boundary ensures AI cannot independently mutate critical system state.
 
-## 6. Recommended Trust & Evidence Architecture
-- **Data Layer:** Two new Firestore collections: `trustClaims` and `trustEvidence`.
-- **Service Layer:** `TrustService` (`src/lib/server/trust-service.ts`) handling all business logic, AI interactions, and transactional saves.
-- **API Layer:** Next.js Route Handlers (`/api/trust/*`) guarded by Firebase Auth token verification.
-- **UI Layer:** A dedicated workspace (`/dashboard/trust`) and embedded `TrustCard` components within Project/Problem views.
+## 6. Proposed Trust & Evidence Architecture
+- **Data Layer:** New `trustClaims` and `trustEvidence` Firestore collections.
+- **Service Layer:** A dedicated `TrustService` for encapsulating business logic, AI interactions, and transactional saves.
+- **API Layer:** Next.js Route Handlers (`/api/trust/*`) heavily guarded by Firebase Auth token verification.
+- **UI Layer:** A `TrustCard` widget embedded in existing views, and a dedicated `/dashboard/trust` workspace for authorized reviewers.
 
-## 7. Proposed Firestore Data Model
+## 7. Proposed Firestore Model
 ```typescript
 interface TrustClaim {
   id: string;
-  targetId: string; // ID of the Project, Problem, or general entity
-  targetType: "PROJECT" | "PROBLEM" | "GENERAL";
+  targetId: string; // Project, Problem, or Incident ID
+  targetType: "PROJECT" | "PROBLEM" | "INCIDENT" | "GENERAL";
   claimText: string;
   status: "UNVERIFIED" | "UNDER_REVIEW" | "PARTIALLY_VERIFIED" | "VERIFIED" | "DISPUTED" | "REJECTED";
   trustScore: number; // 0-100
   submittedBy: string;
   createdAt: number;
-  reviewedBy?: string;
+  reviewedBy?: string; // UID of authorized reviewer
   reviewedAt?: number;
+  reviewNotes?: string;
 }
 
 interface TrustEvidence {
   id: string;
   claimId: string;
   source: string;
-  sourceType: "URL" | "DOCUMENT" | "EXPERT_TESTIMONY" | "SYSTEM_SIGNAL";
-  relationship: "SUPPORTS" | "CONFLICTS" | "NEUTRAL";
-  reliabilityLevel: "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN";
+  sourceType: "OFFICIAL" | "ACADEMIC" | "INSTITUTION" | "EXPERT" | "NEWS" | "COMMUNITY" | "OTHER" | "SYSTEM_SIGNAL";
+  sourceUrl?: string;
   summary: string;
-  submittedBy: string; // "SYSTEM" for AI
-  timestamp: number;
+  supportsClaim: boolean; // true = SUPPORTS, false = CONFLICTS
+  reliabilityLevel: "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN";
+  createdBy: string; // User ID or "SYSTEM"
+  createdAt: number;
 }
 ```
 
-## 8. Proposed API Routes
-- `POST /api/trust/claims`: Submit a new claim.
-- `GET /api/trust/claims/[id]`: Fetch claim and evidence graph.
-- `POST /api/trust/evidence`: Attach new evidence to a claim.
-- `PATCH /api/trust/claims/[id]/review`: Update claim status (Admin/Faculty/Government only).
+## 8. Proposed API Structure
+- `POST /api/trust/claims`: Submit a new claim for review.
+- `GET /api/trust/claims/[id]`: Fetch claim details and associated evidence graph.
+- `POST /api/trust/evidence`: Submit supporting or conflicting evidence.
+- `PATCH /api/trust/claims/[id]/review`: Update claim status (Restricted to Authorized Reviewers).
 
-## 9. Proposed UI Components
-- **`TrustCard`**: A reusable widget displaying Status (with distinct color coding like Amber for `DISPUTED`), Trust signal (progress ring 0-100), top Evidence snippet, and "Why this status?" tooltip.
-- **`EvidenceTimeline`**: Visual representation of supporting vs. conflicting evidence.
-- **`TrustWorkspace`**: Page at `/dashboard/trust` for authorized reviewers to triage `UNVERIFIED` and `UNDER_REVIEW` claims.
+## 9. Proposed UI Structure
+- **`TrustCard`**: A reusable widget displaying the current Status, the Trust Score (0-100 gauge), a primary evidence snippet, and a "Why this status?" popover.
+- **`EvidenceViewer`**: A timeline showing `SUPPORTS` vs `CONFLICTS` edges.
+- **`TrustCenter`**: A dashboard at `/dashboard/trust` for authorized users to triage pending claims.
 
-## 10. Proposed RBAC Permissions
-- **Submit Claims/Evidence:** Any authenticated user (`STUDENT`, `MENTOR`, etc.).
-- **Review/Change Status:** Restricted to `ADMIN`, `FACULTY`, `GOVERNMENT`, `INDUSTRY`.
-- **System Signals:** AI agents operate as `SYSTEM` and can append evidence but CANNOT transition a status to `VERIFIED` or `REJECTED`.
+## 10. Proposed Reviewer Workflow
+1. **User Submission**: User submits a claim or reports a discrepancy.
+2. **System Triage**: Claim defaults to `UNVERIFIED`.
+3. **Evidence Gathering**: Users or AI attach `TrustEvidence` records.
+4. **Human Review**: An authorized reviewer (e.g., `ADMIN` or `FACULTY`) analyzes the evidence graph.
+5. **Final Status**: Reviewer explicitly transitions the status to `VERIFIED`, `DISPUTED`, etc.
 
-## 11. Proposed Audit Logging
-- Integrate with the existing `platform_audit` collection.
-- Record `TRUST_CLAIM_CREATED`, `TRUST_EVIDENCE_ADDED`, and `TRUST_STATUS_CHANGED`.
-- Retain the actor ID, timestamp, and metadata (old status -> new status). Do not log PII in the audit payload.
+## 11. Proposed Trust Scoring
+- **0–100 Signal**: The score is purely an evidence aggregator. It must explicitly state: *"Trust score is an evidence signal, not a guarantee of truth."*
+- **Positive Signals (+)**: Official evidence, independent supporting evidence, verified expert reviews.
+- **Negative Signals (-)**: Conflicting evidence, unverified sources, coordination burst signals.
+- The score dynamically updates as evidence is added, but absolute statuses (`VERIFIED`) require human assertion.
 
-## 12. Proposed Trust Scoring Model
-- Base score of 50.
-- `SUPPORTS` + `HIGH` reliability = +15
-- `CONFLICTS` + `HIGH` reliability = -20 (Penalty for strong conflicts)
-- Capped between 0 and 100.
-- AI dynamically recalculates the score when evidence is added, but the absolute status (`VERIFIED`/`DISPUTED`) requires human assertion.
+## 12. Proposed Evidence System
+- Evidence items act as relational edges pointing to a `TrustClaim`.
+- Each item explicitly declares its `sourceType`, `reliabilityLevel`, and whether it `supportsClaim`.
+- This ensures conflicting information is mathematically represented and easily surfaced to human reviewers.
 
-## 13. Proposed Evidence Model
-Evidence represents edges in a graph pointing to a Claim. 
-- Reliability is derived from the source type (e.g., `.gov` domains or verified experts default to `HIGH`).
-- Conflicting evidence actively suppresses the trust score and triggers an automatic `UNDER_REVIEW` or `DISPUTED` flag.
+## 13. Proposed Coordination Detection
+- **Signals**: Track duplicate submissions, highly similar semantic text, unusual submission bursts (e.g., 50 identical claims in 2 minutes), and repeated targets.
+- **Action**: When detected, the system generates a `SYSTEM_SIGNAL` evidence record reading: *"Potential coordinated activity — human review required."*
+- **Constraint**: The system must **never** automatically declare a user as fake or ban them based purely on these signals.
 
-## 14. Proposed Coordination Detection
-- **Rate Limiting:** Track submissions per UID per hour.
-- **Similarity Hashing:** Generate a semantic hash of `claimText`. If >3 highly similar claims appear within 1 hour from different accounts, flag as `SYSTEM_SIGNAL: COORDINATED_BURST`.
-- **Target Saturation:** Flag if a single project receives a sudden influx of claims.
+## 14. Proposed AI Role
+- **Assistance**: AI summarizes long evidence texts, detects semantic similarity for coordination alerts, and flags potential contradictions.
+- **Isolation**: AI operates as the `SYSTEM` user. It can append `TrustEvidence` but is strictly prohibited from mutating the authoritative `status` of a `TrustClaim` or issuing user bans.
 
-## 15. Proposed AI Integration
-- AI evaluates submitted evidence text against the claim to automatically classify the `relationship` (`SUPPORTS`/`CONFLICTS`).
-- AI summarizes long source documents into the `summary` field.
-- AI monitors the coordination detection hashes to attach `SYSTEM_SIGNAL` evidence.
-- **Strict Boundary:** AI is explicitly denied the permission to mutate `status` to `VERIFIED`.
+## 15. Privacy Considerations
+- **Data Minimization**: Collect only information necessary for verification.
+- **Scraping Protections**: The system must respect `robots.txt`, access rules, paywalls, and CAPTCHAs.
+- **No Accusations**: The UI must focus on verifying *information*, not labeling real people as malicious or fraudulent.
+- **Anonymity**: Private user information of reporters must never be exposed publicly.
 
-## 16. Proposed Demo Scenarios
-1. **"Government Scheme Fraud Rumor"**: 
-   - A synthetic claim stating a demo project is misappropriating funds.
+## 16. Security Considerations
+- **Authoritative Integrity**: Clients are never trusted. All `trustStatus`, `trustScore`, and `reviewedBy` fields are protected by server-side Zod validation.
+- **RBAC Boundaries**: `PATCH` routes checking `canModifyClaim()` ensure that standard `STUDENT` roles cannot verify or dispute claims.
+- **Transaction Safety**: All state changes use `adminDb.runTransaction()` to prevent race conditions.
+
+## 17. Testing Strategy
+- **Unit Tests**: Verify Trust Score math boundaries (0-100) and ensure AI cannot trigger state transitions.
+- **Security Tests**: Assert that `STUDENT` accounts receive 403 Forbidden on review endpoints. Verify IDOR protections for evidence submissions.
+- **Integration Tests**: Validate coordination detection algorithms (burst simulation).
+
+## 18. Demo Scenarios
+1. **Government Scheme Fraud Rumor**: 
+   - A synthetic rumor claiming misappropriated funds.
    - Evidence shows conflicting official documentation.
    - Status: `DISPUTED`.
-2. **"Crop Treatment Claim"**: 
-   - A synthetic claim regarding a novel agricultural yield method.
-   - AI finds supporting scientific journals (Medium reliability), but pending human expert review.
+2. **Crop Treatment Claim**: 
+   - A synthetic agricultural yield claim.
+   - Evidence includes academic journals (Medium reliability) but awaits human verification.
    - Status: `UNDER_REVIEW`.
-3. **"Coordinated Civic Reports"**: 
-   - 5 synthetic student accounts report the exact same pothole issue within 2 minutes.
-   - AI attaches a `COORDINATED_BURST` signal.
+3. **Coordinated Civic Reports**: 
+   - Synthetic accounts rapidly submit identical civic complaints.
+   - System flags a `SYSTEM_SIGNAL` for coordination burst.
    - Status: `UNDER_REVIEW`.
 
-## 17. Security Risks
-- **IDOR (Insecure Direct Object Reference):** Users modifying evidence they don't own or reviewing claims without authorization. Mitigated by strict `auth-helpers.ts` validation on all `PATCH` routes.
-- **Evidence Flooding:** Malicious actors submitting junk evidence to tank a trust score. Mitigated by rate limiting and coordination detection.
-
-## 18. Privacy Considerations
-- The feature must strictly prohibit automated scraping of external PII to build evidence files.
-- Claims targeting specific individuals (e.g., "Student X is lying") must be filtered or anonymized; the system should focus on *project data* and *claims*, not behavioral accusations against real people.
-- Private account information (emails, real names) must never be exposed in the public `TrustCard` evidence log.
-
-## 19. Testing Strategy
-- **Unit Tests:** `trust-service.test.ts` verifying that AI cannot change a status to `VERIFIED` and score calculations are mathematically bounded (0-100).
-- **Security Tests:** Ensure `STUDENT` roles receive 403 Forbidden when attempting to hit `/api/trust/claims/[id]/review`.
-- **E2E Tests:** Simulate the "Government Scheme Fraud Rumor" scenario from submission to human review.
-
-## 20. Exact Files That WOULD Need Modification
+## 19. Exact Files That WOULD Need Modification Later
 - `src/types/trust.ts` (NEW)
 - `src/lib/server/trust-service.ts` (NEW)
 - `src/app/api/trust/claims/route.ts` (NEW)
@@ -139,14 +136,17 @@ Evidence represents edges in a graph pointing to a Claim.
 - `src/app/api/trust/evidence/route.ts` (NEW)
 - `src/app/(dashboard)/dashboard/trust/page.tsx` (NEW)
 - `src/components/trust/TrustCard.tsx` (NEW)
-- `src/components/trust/EvidenceTimeline.tsx` (NEW)
-- `src/components/layout/DashboardShell.tsx` (MODIFIED: Add `/dashboard/trust` to sidebar navigation for authorized roles)
+- `src/components/trust/EvidenceViewer.tsx` (NEW)
+- `src/components/layout/DashboardShell.tsx` (MODIFIED: Add sidebar navigation)
 
-## 21. Migration Strategy
-- No existing data migrations are required since this is an additive feature.
-- Initially deploy with `TRUST_CENTER_ENABLED=false` environment variable.
-- Seed synthetic demo scenarios (Scenario 1, 2, 3) using a dedicated admin script before enabling the UI for general users.
+## 20. Recommended Implementation Order
+1. Define Zod schemas and TypeScript interfaces (`trust.ts`).
+2. Build the backend `TrustService` and transactional logic.
+3. Develop the Next.js API Route Handlers with strict RBAC guards.
+4. Create the `TrustCard` and `EvidenceViewer` UI components.
+5. Build the `/dashboard/trust` Reviewer Workspace.
+6. Seed the synthetic demo scenarios for the presentation.
 
-## 22. Rollback Strategy
-- The feature can be instantly disabled via a server-side environment variable `SYNERGYBRIDGE_TRUST_MODE=DISABLED`, similar to the Blackout Recovery Mode.
-- This will hide the sidebar link and cause all `/api/trust/*` routes to return 503 Service Unavailable, completely isolating the system if an exploit is found.
+## 21. Rollback Strategy
+- Protect the entire feature behind a server-side environment variable (e.g., `SYNERGYBRIDGE_TRUST_MODE=DISABLED`).
+- Toggling this to `DISABLED` will hide UI elements and cause all `/api/trust/*` routes to return 503 Service Unavailable, completely isolating the system if issues arise.
