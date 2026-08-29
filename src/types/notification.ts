@@ -1,0 +1,22 @@
+export enum NotificationType {
+  APPLICATION_SUBMITTED = "APPLICATION_SUBMITTED",
+  APPLICATION_UNDER_REVIEW = "APPLICATION_UNDER_REVIEW",
+  APPLICATION_SHORTLISTED = "APPLICATION_SHORTLISTED",
+  APPLICATION_ACCEPTED = "APPLICATION_ACCEPTED",
+  APPLICATION_REJECTED = "APPLICATION_REJECTED",
+  TEAM_INVITATION = "TEAM_INVITATION",
+  TEAM_INVITATION_ACCEPTED = "TEAM_INVITATION_ACCEPTED",
+  TEAM_INVITATION_DECLINED = "TEAM_INVITATION_DECLINED",
+  PROJECT_CREATED = "PROJECT_CREATED",
+}
+
+export interface AppNotification {
+  id: string;
+  userId: string; // Recipient
+  type: NotificationType;
+  title: string;
+  message: string;
+  read: boolean;
+  link?: string;
+  createdAt: number;
+}
